@@ -23,7 +23,8 @@ using System.Runtime.InteropServices;
 
 namespace uoNet
 {
-    // This is all thats needed for the basic .net wrapper.
+    // This is all thats needed for the basic .net wrapper. Based off Version 3 UO.dll.
+    // Future revisions of UO.dll may break this.
     public static class UO
     {
         [DllImport("uo.dll")]
