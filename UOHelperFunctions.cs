@@ -25,7 +25,10 @@ namespace uoNet
     
     public class UOHelperFunctions
     {
+        // Handle for UO.dll
         public IntPtr UOHandle;
+
+        //All the global variables exposed the same as in OpenEUO
         #region Client Variables
 
         #region Character Info
@@ -380,9 +383,80 @@ namespace uoNet
 
         #endregion
 
-        #region CharInfo
-
+        #region Client Info
+        public int CliNr
+        {
+            get
+            {
+                return GetInt("CliNr");
+            }
+        }
+        public int CliCnt
+        {
+            get
+            {
+                return GetInt("CliCnt");
+            }
+        }
+        public string CliLang
+        {
+            get
+            {
+                return GetString("CliLang");
+            }
+        }
+        public int CliVer
+        {
+            get
+            {
+                return GetInt("CliVer");
+            }
+        }
+        public bool CliLogged
+        {
+            get
+            {
+                return GetBoolean("LObjectID");
+            }
+        }
+        public int CliLeft
+        {
+            get
+            {
+                return GetInt("CliLeft");
+            }
+        }
+        public int CliTop
+        {
+            get
+            {
+                return GetInt("CliTop");
+            }
+        }
+        public int CliXRes
+        {
+            get
+            {
+                return GetInt("CliXRes");
+            }
+        }
+        public int CliYRes
+        {
+            get
+            {
+                return GetInt("CliYRes");
+            }
+        }
+        public string CliTitle
+        {
+            get
+            {
+                return GetString("CliTitle");
+            }
+        }
         #endregion
+
+        #region Last Action
         public int LObjectID
         {
             get
@@ -394,9 +468,223 @@ namespace uoNet
                 SetInt("LObjectID", value);
             }
         }
+        public int LObjectType
+        {
+            get
+            {
+                return GetInt("LObjectType");
+            }
+            set
+            {
+                SetInt("LObjectType", value);
+            }
+        }
+        public int LTargetID
+        {
+            get
+            {
+                return GetInt("LTargetID");
+            }
+            set
+            {
+                SetInt("LTargetID", value);
+            }
+        }
+        public int LTargetKind
+        {
+            get
+            {
+                return GetInt("LTargetKind");
+            }
+            set
+            {
+                SetInt("LTargetKind", value);
+            }
+        }
+        public int LTargetTile
+        {
+            get
+            {
+                return GetInt("LTargetTile");
+            }
+            set
+            {
+                SetInt("LTargetTile", value);
+            }
+        }
+        public int LTargetX
+        {
+            get
+            {
+                return GetInt("LTargetX");
+            }
+            set
+            {
+                SetInt("LTargetX", value);
+            }
+        }
+        public int LTargetY
+        {
+            get
+            {
+                return GetInt("LTargetY");
+            }
+            set
+            {
+                SetInt("LTargetY", value);
+            }
+        }
+        public int LTargetZ
+        {
+            get
+            {
+                return GetInt("LTargetZ");
+            }
+            set
+            {
+                SetInt("LTargetZ", value);
+            }
+        }
+        public int LLiftedID
+        {
+            get
+            {
+                return GetInt("LLiftedID");
+            }
+            set
+            {
+                SetInt("LLiftedID", value);
+            }
+        }
+        public int LLiftKind
+        {
+            get
+            {
+                return GetInt("LLiftKind");
+            }
+            set
+            {
+                SetInt("LLiftKind", value);
+            }
+        }
+        public int LLiftType
+        {
+            get
+            {
+                return GetInt("LLiftType");
+            }
+            set
+            {
+                SetInt("LLiftType", value);
+            }
+        }
+        public int LSkill
+        {
+            get
+            {
+                return GetInt("LSkill");
+            }
+            set
+            {
+                SetInt("LSkill", value);
+            }
+        }
+        public int LSpell
+        {
+            get
+            {
+                return GetInt("LSpell");
+            }
+            set
+            {
+                SetInt("LSpell", value);
+            }
+        }
         #endregion
-       
 
+        #region Misc
+        public int EnemyHits
+        {
+            get
+            {
+                return GetInt("EnemyHits");
+            }
+        }
+        public int EnemyID
+        {
+            get
+            {
+                return GetInt("EnemyID");
+            }
+        }
+        public int RHandID
+        {
+            get
+            {
+                return GetInt("RHandID");
+            }
+        }
+        public int LHandID
+        {
+            get
+            {
+                return GetInt("LHandID");
+            }
+        }
+        public int CursorX
+        {
+            get
+            {
+                return GetInt("CursorX");
+            }
+        }
+        public int CursorY
+        {
+            get
+            {
+                return GetInt("CursorY");
+            }
+        }
+        public int CursKind
+        {
+            get
+            {
+                return GetInt("CursKind");
+            }
+        }
+        public bool TargCurs
+        {
+            get
+            {
+                return GetBoolean("TargCurs");
+            }
+        }
+        public string Shard
+        {
+            get
+            {
+                return GetString("Shard");
+            }
+        }
+        public string LShard
+        {
+            get
+            {
+                return GetString("LShard");
+            }
+        }
+        public string SysMsg
+        {
+            get
+            {
+                return GetString("SysMsg");
+            }
+        }
+        #endregion
+        #endregion
+
+
+        //Get and Set Handlers
         #region GetterSetterHelpers
         private bool GetBoolean(string command)
         {
@@ -460,6 +748,8 @@ namespace uoNet
             UO.Execute(UOHandle);
         }
         #endregion
+
+        // Handles opening UO.dll and mapping to correct client. You must ALWAYS call Open before anything else.
         #region OpenClose
         public void Close()
         {
