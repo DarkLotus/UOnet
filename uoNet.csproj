@@ -40,9 +40,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UO.cs" />
+    <Compile Include="UOCommandHandlers.cs" />
+    <Compile Include="UODLL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UOHelperFunctions.cs" />
+    <Compile Include="UOVars.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="uo.dll">

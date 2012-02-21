@@ -25,7 +25,7 @@ namespace uoNet
 {
     // This is all thats needed for the basic .net wrapper. Based off Version 3 UO.dll.
     // Future revisions of UO.dll may break this.
-    public static class UO
+    public static class UODLL
     {
         [DllImport("uo.dll")]
         public static extern IntPtr Open();
@@ -67,5 +67,7 @@ namespace uoNet
         public static extern int GetInteger(IntPtr handle, int index);
         [DllImport("uo.dll")]
         public static extern bool GetBoolean(IntPtr handle, int index);
+
+       
     }
 }

@@ -23,15 +23,15 @@ using System.Text;
 namespace uoNet
 {
     
-    public class UOHelperFunctions
+    public partial class UO
     {
         // Handle for UO.dll
         public IntPtr UOHandle;
-
         //All the global variables exposed the same as in OpenEUO
         #region Client Variables
 
         #region Character Info
+
         public int CharPosX
         {
             get
@@ -688,64 +688,64 @@ namespace uoNet
         #region GetterSetterHelpers
         private bool GetBoolean(string command)
         {
-            UO.SetTop(UOHandle, 0);
-            UO.PushStrVal(UOHandle, "Get");
-            UO.PushStrVal(UOHandle, command);
-            var result = UO.Execute(UOHandle);
+            UODLL.SetTop(UOHandle, 0);
+            UODLL.PushStrVal(UOHandle, "Get");
+            UODLL.PushStrVal(UOHandle, command);
+            var result = UODLL.Execute(UOHandle);
             if (result == 0)
-                return UO.GetBoolean(UOHandle, 1);
+                return UODLL.GetBoolean(UOHandle, 1);
             else
                 return false;
         }
 
         private void SetBoolean(string command, Boolean value)
         {
-            UO.SetTop(UOHandle, 0);
-            UO.PushStrVal(UOHandle, "Set");
-            UO.PushStrVal(UOHandle, command);
-            UO.PushBoolean(UOHandle, value);
-            UO.Execute(UOHandle);
+            UODLL.SetTop(UOHandle, 0);
+            UODLL.PushStrVal(UOHandle, "Set");
+            UODLL.PushStrVal(UOHandle, command);
+            UODLL.PushBoolean(UOHandle, value);
+            UODLL.Execute(UOHandle);
         }
 
         private int GetInt(string command)
         {
-            UO.SetTop(UOHandle, 0);
-            UO.PushStrVal(UOHandle, "Get");
-            UO.PushStrVal(UOHandle, command);
-            var result = UO.Execute(UOHandle);
+            UODLL.SetTop(UOHandle, 0);
+            UODLL.PushStrVal(UOHandle, "Get");
+            UODLL.PushStrVal(UOHandle, command);
+            var result = UODLL.Execute(UOHandle);
             if (result == 0)
-                return UO.GetInteger(UOHandle, 1);
+                return UODLL.GetInteger(UOHandle, 1);
             else
                 return 0;
         }
 
         private void SetInt(string command,int value)
         {
-            UO.SetTop(UOHandle, 0);
-            UO.PushStrVal(UOHandle, "Set");
-            UO.PushStrVal(UOHandle, command);
-            UO.PushInteger(UOHandle, value);
-            UO.Execute(UOHandle);
+            UODLL.SetTop(UOHandle, 0);
+            UODLL.PushStrVal(UOHandle, "Set");
+            UODLL.PushStrVal(UOHandle, command);
+            UODLL.PushInteger(UOHandle, value);
+            UODLL.Execute(UOHandle);
         }
 
         private string GetString(string command)
         {
-            UO.SetTop(UOHandle, 0);
-            UO.PushStrVal(UOHandle, "Get");
-            UO.PushStrVal(UOHandle, command);
-            var result = UO.Execute(UOHandle);
+            UODLL.SetTop(UOHandle, 0);
+            UODLL.PushStrVal(UOHandle, "Get");
+            UODLL.PushStrVal(UOHandle, command);
+            var result = UODLL.Execute(UOHandle);
             if (result == 0)
-                return UO.GetString(UOHandle, 1);
+                return UODLL.GetString(UOHandle, 1);
             else
                 return null;//Return Blank string instead?
         }
         private void SetString(string command, string value)
         {
-            UO.SetTop(UOHandle, 0);
-            UO.PushStrVal(UOHandle, "Set");
-            UO.PushStrVal(UOHandle, command);
-            UO.PushStrVal(UOHandle, value);
-            UO.Execute(UOHandle);
+            UODLL.SetTop(UOHandle, 0);
+            UODLL.PushStrVal(UOHandle, "Set");
+            UODLL.PushStrVal(UOHandle, command);
+            UODLL.PushStrVal(UOHandle, value);
+            UODLL.Execute(UOHandle);
         }
         #endregion
 
@@ -753,25 +753,25 @@ namespace uoNet
         #region OpenClose
         public void Close()
         {
-            UO.Close(UOHandle);
+            UODLL.Close(UOHandle);
         }
         public void Open()
         {
-            UOHandle = UO.Open();
-            var ver = UO.Version();
-            UO.SetTop(UOHandle, 0);
-            UO.PushStrVal(UOHandle, "Set");
-            UO.PushStrVal(UOHandle, "CliNr");
-            UO.PushInteger(UOHandle, 1);
+            UOHandle = UODLL.Open();
+            var ver = UODLL.Version();
+            UODLL.SetTop(UOHandle, 0);
+            UODLL.PushStrVal(UOHandle, "Set");
+            UODLL.PushStrVal(UOHandle, "CliNr");
+            UODLL.PushInteger(UOHandle, 1);
         }
         public void Open(int CliNr)
         {
-            UOHandle = UO.Open();
-            var ver = UO.Version();
-            UO.SetTop(UOHandle, 0);
-            UO.PushStrVal(UOHandle, "Set");
-            UO.PushStrVal(UOHandle, "CliNr");
-            UO.PushInteger(UOHandle, CliNr);
+            UOHandle = UODLL.Open();
+            var ver = UODLL.Version();
+            UODLL.SetTop(UOHandle, 0);
+            UODLL.PushStrVal(UOHandle, "Set");
+            UODLL.PushStrVal(UOHandle, "CliNr");
+            UODLL.PushInteger(UOHandle, CliNr);
         }
         #endregion
         
