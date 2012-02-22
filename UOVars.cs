@@ -759,6 +759,7 @@ namespace uoNet
         {
             UOHandle = UODLL.Open();
             var ver = UODLL.Version();
+            if (ver != 3) { Console.WriteLine("Warning Unsupported DLL!");}
             UODLL.SetTop(UOHandle, 0);
             UODLL.PushStrVal(UOHandle, "Set");
             UODLL.PushStrVal(UOHandle, "CliNr");
@@ -768,6 +769,7 @@ namespace uoNet
         {
             UOHandle = UODLL.Open();
             var ver = UODLL.Version();
+            if (ver != 3) { Console.WriteLine("Warning Unsupported DLL!"); }
             UODLL.SetTop(UOHandle, 0);
             UODLL.PushStrVal(UOHandle, "Set");
             UODLL.PushStrVal(UOHandle, "CliNr");

@@ -80,7 +80,8 @@ namespace uoNet
         #region Supported GameDLL Commands
         public void Click(int X, int Y, bool Left, bool Down, bool Up, bool Middle)
         {
-            UODLL.SetTop(UOHandle, 0);
+            _executeCommand(false, "Click", new object[] { X, Y, Left, Down, Up, Middle });
+            /*UODLL.SetTop(UOHandle, 0);
             UODLL.PushStrVal(UOHandle, "Call");
             UODLL.PushStrVal(UOHandle, "Click");
             UODLL.PushInteger(UOHandle, X);
@@ -90,11 +91,11 @@ namespace uoNet
             UODLL.PushBoolean(UOHandle, Up);
             UODLL.PushBoolean(UOHandle, Middle);
             var result = UODLL.Execute(UOHandle);
-            return;
+            return;*/
         }
-       
 
-        private FoundItem GetItem(int index)
+
+        public FoundItem GetItem(int index)
         {
             UODLL.SetTop(UOHandle, 0);
             UODLL.PushStrVal(UOHandle, "Call");
@@ -116,7 +117,40 @@ namespace uoNet
             return item;
 
         }
-
+        public JournalEntry GetJournal(int index)
+        {
+            return null;
+        }
+        public int GetPix(int X,int Y)
+        {
+            var results = _executeCommand(true,"GetPix",new object[] {X,Y});
+            if(results != null){return (int)results[0]; }
+            return 0;
+        }
+        public Skill GetSkill(string SKill)
+        {
+            //Todo Replace with enum?
+            return null;
+        }
+        public void HideItem(int ID)
+        {
+            _executeCommand(false, "HideItem", new object[] { ID });
+        }
+        public void Key(string Key,bool Ctrl, bool Alt, bool Shift)
+        {
+            _executeCommand(false, "Key", new object[] { Key, Ctrl, Alt, Shift });
+        }
+        public bool Move(int X, int Y,int Accuracy,int TimeoutMS)
+        {
+            var results = _executeCommand(true, "Move", new object[] { X, Y, Accuracy, TimeoutMS });
+            if (results != null) { return (bool)results[0]; }
+            return false;
+        }
+        public void Msg(string Message)
+        {
+            _executeCommand(false, "Msg", new object[] { Message });
+        }
+        
         public int ScanItems(bool VisibleOnly)
         {
             UODLL.SetTop(UOHandle, 0);
@@ -126,6 +160,50 @@ namespace uoNet
             if (UODLL.Execute(UOHandle) != 0)
                 return 0;
             return UODLL.GetInteger(UOHandle, 1);
+        }
+        public JournalScan ScanJournal(int OldRef)
+        {
+            var results = _executeCommand(true, "ScanJournal", new object[] { OldRef });
+            if (results != null)
+            {
+                JournalScan j = new JournalScan();
+                j.NewRef = (int)results[0];
+                j.Cnt = (int)results[1];
+                return j;
+            }
+            return null;
+        }
+
+        public Container GetCont(int Index)
+        {
+            var results = _executeCommand(true, "GetCont", new object[] { Index });
+            if (results == null) { return null; }
+            return new Container(results);
+
+        }
+        public void ContTop(int Index)
+        {
+            _executeCommand(false, "ContTop", new object[] { Index });
+        }
+
+        //Probably should replace tile commands with openuo rather than uo.dll
+        public bool TileInit(bool NoOverRides)
+        {
+            var results = _executeCommand(true,"TileInit",new object[] {NoOverRides});
+            if (results != null) { return (bool)results[0]; }
+            return false;
+        }
+        public int TileCnt(int X,int Y,int Facet)
+        {
+            var results = _executeCommand(true, "TileCnt", new object[] { X,Y,Facet });
+            if (results != null) { return (int)results[0]; }
+            return 0;
+        }
+        public Tile TileGet(int X,int Y,int Index,int Facet)
+        {
+            var results = _executeCommand(true, "TileGet", new object[] { X, Y, Index, Facet });
+            if (results != null) { return new Tile(results); }
+            return null;
         }
         #endregion
 
@@ -141,7 +219,7 @@ namespace uoNet
             UODLL.PushStrVal(UOHandle, CommandName);
             foreach (var o in args)
             {
-                if(o is Int32)
+                if(o is Int32) // (o.GetType() == typeof(int))
                 {
                     UODLL.PushInteger(UOHandle,(int)o);
                 }
@@ -180,7 +258,58 @@ namespace uoNet
             }
             return Results;
         }
+        public class Tile
+        {
+            public int Type, Z;
+            public string Name;
+            public int Flags;
+            public Tile(List<object> data)
+            {
+                if (data.Count() < 4)// throw an error
+                    return;
+                this.Type = (int)data[0];
+                this.Z = (int)data[1];
+                this.Name = (string)data[2];
+                this.Flags = (int)data[3];
+            }
+        }
+        public class Container
+        {
+            public int Kind, X, Y, SX, SY, ID, Type;
+            public string Name;
+            public Container(List<object> data)
+            {
+                if (data.Count() < 8)// throw an error
+                    return;
+                this.Kind = (int)data[0];
+                this.X = (int)data[1];
+                this.Y = (int)data[2];
+                this.SX = (int)data[3];
+                this.SY = (int)data[4];
+                this.ID = (int)data[5];
+                this.Type = (int)data[6];
+                this.Name = (string)data[7];
+            }
+            public Container()
+            {
 
+            }
+        }
+        public class Skill
+        {
+            public int Normal, Real, Cap, Lock;
+        }
+
+        public class JournalEntry
+        {
+            public string Line;
+            public int Col;
+        }
+
+        public class JournalScan
+        {
+            public int NewRef, Cnt;
+        }
         public class PropertyInfo
         {
             public string Name;
