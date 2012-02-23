@@ -26,6 +26,10 @@ namespace uoNet
 
             return items;
         }
+        public void UseSkill(Enums.Skill Skill)
+        {
+            EventMacro(13, (int)Skill);
+        }
         #endregion
         // ToDo SKilllock/Statlock
         #region Supported GameDLL Events
@@ -54,6 +58,12 @@ namespace uoNet
             //Todo check this
             _executeCommand(false, "Macro", new object[] { Par1, Par2, Str });
         }
+        public void EventMacro(int Par1, int Par2)
+        {
+            //Todo check this
+            _executeCommand(false, "Macro", new object[] { Par1, Par2 });
+        }
+        
         public void PathFind(int X, int Y, int Z)
         {
             _executeCommand(false, "PathFind", new object[] { X, Y, Z });

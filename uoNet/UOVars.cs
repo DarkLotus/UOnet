@@ -755,7 +755,7 @@ namespace uoNet
         {
             UODLL.Close(UOHandle);
         }
-        public void Open()
+        public bool Open()
         {
             UOHandle = UODLL.Open();
             var ver = UODLL.Version();
@@ -764,8 +764,13 @@ namespace uoNet
             UODLL.PushStrVal(UOHandle, "Set");
             UODLL.PushStrVal(UOHandle, "CliNr");
             UODLL.PushInteger(UOHandle, 1);
+            if (UODLL.Execute(UOHandle) != 0)
+            {
+                return false;
+            };
+            return true;
         }
-        public void Open(int CliNr)
+        public bool Open(int CliNr)
         {
             UOHandle = UODLL.Open();
             var ver = UODLL.Version();
@@ -774,6 +779,11 @@ namespace uoNet
             UODLL.PushStrVal(UOHandle, "Set");
             UODLL.PushStrVal(UOHandle, "CliNr");
             UODLL.PushInteger(UOHandle, CliNr);
+            if (UODLL.Execute(UOHandle) != 0)
+            {
+                return false;
+            };
+            return true;
         }
         #endregion
         
