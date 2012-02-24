@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ * Copyright (C) 2011 - 2012 James Kidd
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -217,57 +234,7 @@ namespace uoNet
         }
         #endregion
 
-
-       
-
-        private List<object> _executeCommand(bool ReturnResults, string CommandName, object[] args)
-        {
-            // Maybe return bool and results as an Out?
-            List<object> Results = new List<object>();
-            UODLL.SetTop(UOHandle,0);
-            UODLL.PushStrVal(UOHandle, "Call");
-            UODLL.PushStrVal(UOHandle, CommandName);
-            foreach (var o in args)
-            {
-                if(o is Int32) // (o.GetType() == typeof(int))
-                {
-                    UODLL.PushInteger(UOHandle,(int)o);
-                }
-                else if (o is string)
-                {
-                    UODLL.PushStrVal(UOHandle, (string)o);
-                }
-                else if (o is bool)
-                { 
-                    UODLL.PushBoolean(UOHandle, (bool)o);
-                }
-            }
-            if (UODLL.Execute(UOHandle) != 0 ) { return null; }
-            if (!ReturnResults) { return null; }
-            int objectcnt = UODLL.GetTop(UOHandle);
-            for (int i = 1; i <= objectcnt; i++)
-            {
-                int gettype = UODLL.GetType(UOHandle, 1);
-                switch (gettype)
-                {
-                    case 1:
-                        Results.Add(UODLL.GetBoolean(UOHandle, i).ToString());
-
-                        break;
-                    case 3:
-                        Results.Add(UODLL.GetInteger(UOHandle, i).ToString());
-                        break;
-                    case 4:
-                        Results.Add(UODLL.GetString(UOHandle, i));
-                        break;
-                    default:
-                        throw new NotImplementedException();
-                        break;
-                }
-
-            }
-            return Results;
-        }
+        #region DataTypes
         public class Tile
         {
             public int Type, Z;
@@ -334,7 +301,57 @@ namespace uoNet
             public int X, Y, Z;
             public int Stack, Rep, Col;
         }
+        #endregion
 
 
+        //Executes a GameDLL command, Idea taken from jultima http://code.google.com/p/jultima/
+        private List<object> _executeCommand(bool ReturnResults, string CommandName, object[] args)
+        {
+            // Maybe return bool and results as an Out?
+            List<object> Results = new List<object>();
+            UODLL.SetTop(UOHandle, 0);
+            UODLL.PushStrVal(UOHandle, "Call");
+            UODLL.PushStrVal(UOHandle, CommandName);
+            foreach (var o in args)
+            {
+                if (o is Int32) // (o.GetType() == typeof(int))
+                {
+                    UODLL.PushInteger(UOHandle, (int)o);
+                }
+                else if (o is string)
+                {
+                    UODLL.PushStrVal(UOHandle, (string)o);
+                }
+                else if (o is bool)
+                {
+                    UODLL.PushBoolean(UOHandle, (bool)o);
+                }
+            }
+            if (UODLL.Execute(UOHandle) != 0) { return null; }
+            if (!ReturnResults) { return null; }
+            int objectcnt = UODLL.GetTop(UOHandle);
+            for (int i = 1; i <= objectcnt; i++)
+            {
+                int gettype = UODLL.GetType(UOHandle, 1);
+                switch (gettype)
+                {
+                    case 1:
+                        Results.Add(UODLL.GetBoolean(UOHandle, i).ToString());
+
+                        break;
+                    case 3:
+                        Results.Add(UODLL.GetInteger(UOHandle, i).ToString());
+                        break;
+                    case 4:
+                        Results.Add(UODLL.GetString(UOHandle, i));
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                        break;
+                }
+
+            }
+            return Results;
+        }
     }
 }

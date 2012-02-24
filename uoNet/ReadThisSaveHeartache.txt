@@ -1,0 +1,7 @@
+﻿Known Issues:
+Currently wrapped dll fails in vs2010 debug mode, client variables come back null and CliNr keeps reseting to 0.
+Build your app then run directly via exe for no issues. It does not appear to be a UAC type error as disabling UAC and also running vs2010 as admin give
+the same results.
+
+Contact:
+I can be contacted at #kklolk on Efnet, as Darklotus idle there for life, or emailed at kklolk+UO@gmail.com
