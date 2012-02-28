@@ -48,6 +48,7 @@
     <Compile Include="UOVars.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ReadThisSaveHeartache.txt" />
     <Content Include="uo.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
