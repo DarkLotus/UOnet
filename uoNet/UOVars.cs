@@ -23,7 +23,7 @@ using System.Text;
 namespace uoNet
 {
     
-    public class UO
+    public partial class UO
     {
         //All the global variables exposed the same as in OpenEUO
         #region Client Variables

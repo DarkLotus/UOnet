@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "uoNetExample", "uoNetExampl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "uoNet", "uoNet\uoNet.csproj", "{5CC10D85-2DA2-4386-98C8-3F2FC2956441}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScriptLauncher", "RecallMining\ScriptLauncher.csproj", "{86691737-E067-40BC-BA2A-F757DBC41E4D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScriptLauncher", "ScriptLauncher\ScriptLauncher.csproj", "{86691737-E067-40BC-BA2A-F757DBC41E4D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
