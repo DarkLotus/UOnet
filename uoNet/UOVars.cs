@@ -30,25 +30,25 @@ namespace uoNet
 
         #region Character Info
 
-        public int CharPosX
+        public ushort CharPosX
         {
             get
             {
-                return GetInt("CharPosX");
+                return (ushort)GetInt("CharPosX");
             }
         }
-        public int CharPosY
+        public ushort CharPosY
         {
             get
             {
-                return GetInt("CharPosY");
+                return (ushort)GetInt("CharPosY");
             }
         }
-        public int CharPosZ
+        public byte CharPosZ
         {
             get
             {
-                return GetInt("CharPosZ");
+                return (byte)GetInt("CharPosZ");
             }
         }
         public int CharDir

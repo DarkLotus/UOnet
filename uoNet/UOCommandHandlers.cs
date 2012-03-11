@@ -43,15 +43,28 @@ namespace uoNet
 
             return items;
         }
+
+        public List<FoundItem> FindItem(ushort[] Types, bool VisibleOnly)
+        {
+            List<FoundItem> items = new List<FoundItem>();
+            foreach (var ty in Types)
+                items.AddRange(FindItem(ty, true));
+            return items;
+        }
+
+
         public void UseSkill(Enums.Skill Skill)
         {
             EventMacro(13, (int)Skill);
         }
+
         #endregion
         // ToDo SKilllock/Statlock
         #region Supported GameDLL Events
+        
         public void CliDrag(int ItemID)
         {
+            // This should be completed with a click to drop, use Drag.
             _executeCommand(false, "CliDrag", new object[] { ItemID });
         }
         public void Drag(int ItemID, int Amount)
@@ -62,6 +75,11 @@ namespace uoNet
         {
             _executeCommand(false, "DropC", new object[] { ContID, X, Y });
         }
+        public void DropC(int ContID)
+        {
+            _executeCommand(false, "DropC", new object[] { ContID });
+        }
+
         public void DropG(int X, int Y, int Z)
         {
             _executeCommand(false, "DropG", new object[] { X, Y, Z });
@@ -170,7 +188,7 @@ namespace uoNet
         public bool Move(int X, int Y,int Accuracy,int TimeoutMS)
         {
             var results = _executeCommand(true, "Move", new object[] { X, Y, Accuracy, TimeoutMS });
-            if (results != null) { return (bool)results[0]; }
+            if (results != null) { if (results[0] == "true") { return true; } return false; }
             return false;
         }
         public void Msg(string Message)
