@@ -77,12 +77,7 @@ namespace ScriptLauncher
                  */
             }
         }
-        private bool 
 
-        private string GetNewestJournal(string SearchString)
-        {
-        
-        }
 
         private List<Tree> FindTrees()
         {

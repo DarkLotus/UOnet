@@ -29,23 +29,51 @@ namespace uoNet
         
         #region Custom Helper Commands
 
-        private bool _inJournal(string
-
+        private int journalRef = 0;
+        private List<string> journal = new List<string>();
+        /// <summary>
+        /// Finds the designated string in new journal entries since last call.
+        /// </summary>
+        /// <param name="StringToFind"></param>
+        /// <returns>True if found, False if not found</returns>
         public bool InJournal(string StringToFind)
         {
+            journal.Clear(); // Maybe dont clear?
+            var jf = this.ScanJournal(journalRef);
+            if(jf.NewRef > journalRef)
+            { // new journal entries
+            for(int i = journalRef; i < jf.NewRef;i++)
+            {
+                journal.Add(GetJournal(i).Line);
+            }
+            journalRef = jf.NewRef;
+            }
 
+            if (journal.Where(j => j.ToLower().Contains(StringToFind.ToLower())).Count() > 0)
+                return true;
             return false;
         }
         /// <summary>
-        /// If found returns the found string.
+        /// Finds the designated string in new journal entries since last call.
         /// </summary>
         /// <param name="StringsToFind"></param>
         /// <returns>Returns found string or string.Empty if not found</returns>
         public string InJournal(string[] StringsToFind)
         {
+            journal.Clear(); // Maybe dont clear?
+            var jf = this.ScanJournal(journalRef);
+            if (jf.NewRef > journalRef)
+            { // new journal entries
+                for (int i = journalRef; i < jf.NewRef; i++)
+                {
+                    journal.Add(GetJournal(i).Line);
+                }
+                journalRef = jf.NewRef;
+            }
+
             foreach (string s in StringsToFind)
             {
-                if (InJournal(s))
+                if (journal.Where(j => j.ToLower().Contains(s.ToLower())).Count() > 0)
                     return s;
             }
             return string.Empty;
@@ -122,12 +150,16 @@ namespace uoNet
         #endregion
         // ToDo SKilllock/Statlock
         #region Supported GameDLL Events
-        
+        /// <summary>
+        /// This method of dragging should be used with a click to drop.
+        /// </summary>
+        /// <param name="ItemID"></param>
         public void CliDrag(int ItemID)
         {
             // This should be completed with a click to drop, use Drag.
             _executeCommand(false, "CliDrag", new object[] { ItemID });
         }
+
         public void Drag(int ItemID, int Amount)
         {
             _executeCommand(false, "Drag", new object[] { ItemID, Amount });
@@ -149,16 +181,15 @@ namespace uoNet
         {
             _executeCommand(false, "ExMsg", new object[] { ItemID, FontID, Color, Message });
         }
-        public void EventMacro(int Par1, int Par2, string Str)
+
+        public void EventMacro(int Par1, int Par2, string Str = "")
         {
-            //Todo check this
+            if(string.IsNullOrEmpty(Str))
+                _executeCommand(false, "Macro", new object[] { Par1, Par2 });
+            else
             _executeCommand(false, "Macro", new object[] { Par1, Par2, Str });
         }
-        public void EventMacro(int Par1, int Par2)
-        {
-            //Todo check this
-            _executeCommand(false, "Macro", new object[] { Par1, Par2 });
-        }
+
         
         public void PathFind(int X, int Y, int Z)
         {
@@ -225,6 +256,9 @@ namespace uoNet
         }
         public JournalEntry GetJournal(int index)
         {
+            var results = _executeCommand(true, "GetJournal", new object[] { index });
+            if (results != null)
+                return new JournalEntry((string)results[0], (int)results[1]);
             return null;
         }
         public int GetPix(int X,int Y)
@@ -360,6 +394,14 @@ namespace uoNet
         {
             public string Line;
             public int Col;
+
+
+            public JournalEntry(string p1, int p2)
+            {
+                // TODO: Complete member initialization
+                this.Line = p1;
+                this.Col = p2;
+            }
         }
 
         public class JournalScan
