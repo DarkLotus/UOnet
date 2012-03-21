@@ -18,7 +18,7 @@ namespace ScriptLauncher
 
         private short homeX = 2067;
         private short homeY = 525;
-        private short Xrange = 25,Yrange = 35;
+        private short Xrange = 20,Yrange = 25;
         private int DropChest = (int)Tools.EUOToInt("JYDSBND");
         ushort[] AxeType = new ushort[2] { uoNet.Tools.EUOToUshort("BSF"), 3907 };
         ushort[] TreeTiles = new ushort[] { 3274, 3275, 3276, 3277, 3280, 3283, 3286, 3288, 3290, 3293, 3296, 3299, 3302 };
@@ -34,7 +34,7 @@ namespace ScriptLauncher
                 {
                     var tree = trees[0]; trees.RemoveAt(0);
                     UO.PathFind(tree.X, tree.Y, tree.Z);
-                    UO.Move(tree.X, tree.Y, 1,10000);
+                    UO.Move(tree.X, tree.Y, 1,25000);
 
                     UO.LTargetTile = tree.GraphicID;
                     UO.LTargetX = tree.X;
@@ -43,7 +43,7 @@ namespace ScriptLauncher
                     UO.LTargetKind = 3;
                     var axe = UO.FindItem(3907, true).First(a => a.ContID == UO.CharID);
                     UO.LObjectID = axe.ID;
-                    while (!UO.SysMsg.Contains("enough"))
+                    while (!UO.SysMsg.Contains("enough") && !UO.SysMsg.Contains("far away"))
                     {
                         UO.EventMacro(17, 0);
                         while (!UO.TargCurs)
@@ -76,6 +76,12 @@ namespace ScriptLauncher
                  * >no trees in range, walk home, wipe chopped trees.
                  */
             }
+        }
+        private bool 
+
+        private string GetNewestJournal(string SearchString)
+        {
+        
         }
 
         private List<Tree> FindTrees()

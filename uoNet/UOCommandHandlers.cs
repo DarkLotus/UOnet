@@ -16,17 +16,73 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace uoNet
 {
     public partial class UO
     {
-
+        
         #region Custom Helper Commands
-        public List<FoundItem> FindItem(int TypeOrID, bool VisibleOnly)
+
+        private bool _inJournal(string
+
+        public bool InJournal(string StringToFind)
+        {
+
+            return false;
+        }
+        /// <summary>
+        /// If found returns the found string.
+        /// </summary>
+        /// <param name="StringsToFind"></param>
+        /// <returns>Returns found string or string.Empty if not found</returns>
+        public string InJournal(string[] StringsToFind)
+        {
+            foreach (string s in StringsToFind)
+            {
+                if (InJournal(s))
+                    return s;
+            }
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Sleeps for designated time in EasyUO style 10 = 500ms 20 = 1s
+        /// </summary>
+        /// <param name="Time"></param>
+        public void Wait(int Time)
+        {
+            Thread.Sleep((Time * 100) / 2);
+        }
+
+        /// <summary>
+        /// Waits the designated timeout for a Target cursor, or 2000ms
+        /// </summary>
+        /// <param name="TimeOutMS"></param>
+        /// <returns>True if target cursor is active</returns>
+        public bool Target(int TimeOutMS = 2000)
+        {
+            System.Diagnostics.Stopwatch _stopwatch = new System.Diagnostics.Stopwatch(); _stopwatch.Start();
+            while (_stopwatch.ElapsedMilliseconds < TimeOutMS)
+            {
+                if (this.TargCurs)
+                    return true;
+                Thread.Sleep(10);
+            }
+            return false;
+        }
+        /// <summary>
+        /// Returns list of FoundItem matching Type or ID
+        /// </summary>
+        /// <param name="TypeOrID"></param>
+        /// <param name="VisibleOnly">Search for visible items only</param>
+        /// <returns>Returns list of FoundItem matching Type or ID</returns>
+        public List<FoundItem> FindItem(int TypeOrID, bool VisibleOnly = true)
         {
             int itemcnt = ScanItems(VisibleOnly);
             List<FoundItem> items = new List<FoundItem>();
@@ -43,8 +99,13 @@ namespace uoNet
 
             return items;
         }
-
-        public List<FoundItem> FindItem(ushort[] Types, bool VisibleOnly)
+        /// <summary>
+        /// Returns list of FoundItem matching Type or ID
+        /// </summary>
+        /// <param name="TypeOrID"></param>
+        /// <param name="VisibleOnly"> Search for visible items only</param>
+        /// <returns>Returns list of FoundItem matching Type or ID</returns>
+        public List<FoundItem> FindItem(ushort[] Types, bool VisibleOnly = true)
         {
             List<FoundItem> items = new List<FoundItem>();
             foreach (var ty in Types)

@@ -76,15 +76,23 @@ namespace uoNet
 
         // Handles opening UO.dll and mapping to correct client. You must ALWAYS call Open before anything else.
         #region OpenClose
+        /// <summary>
+        /// Closes UO.dll
+        /// </summary>
         public void Close()
         {
             UODLL.Close(UOHandle);
         }
+        
+        /// <summary>
+        /// Opens UO.dll and attaches to first Client instance.
+        /// </summary>
+        /// <returns>true if Open, false if wrong version or failure</returns>
         public bool Open()
         {
             UOHandle = UODLL.Open();
             var ver = UODLL.Version();
-            if (ver != 3) { Console.WriteLine("Warning Unsupported DLL!"); }
+            if (ver != 3) { return false; }
             UODLL.SetTop(UOHandle, 0);
             UODLL.PushStrVal(UOHandle, "Set");
             UODLL.PushStrVal(UOHandle, "CliNr");
@@ -95,6 +103,10 @@ namespace uoNet
             };
             return true;
         }
+        /// <summary>
+        /// Opens UO.dll and attaches to specified Client instance.
+        /// </summary>
+        /// <returns>true if Open, false if wrong version or failure</returns>
         public bool Open(int CliNr)
         {
             UOHandle = UODLL.Open();

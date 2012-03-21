@@ -80,25 +80,30 @@ namespace ScriptLauncher
             if (Started)
             {
                 myScript.Stop();
+                Started = false;
             }
             else
             {
                 myScript = new Mining();
                 myScript.Start(this, UO, Proxy);
+                Started = true;
             }
         }
 
         private void btn_startLJ_Click(object sender, EventArgs e)
         {
-            UO.Open(1);
+            
             if (Started)
             {
                 myScript.Stop();
+                Started = false;
             }
             else
             {
+                UO.Open(1);
                 myScript = new LJ();
                 myScript.Start(this, UO);
+                Started = true;
             }
         }
     }
