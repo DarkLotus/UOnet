@@ -1,6 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "uoNetExample", "uoNetExample\uoNetExample.csproj", "{7C185CB7-31DA-429B-803D-FC56C3DFB41E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "uoNet", "uoNet\uoNet.csproj", "{5CC10D85-2DA2-4386-98C8-3F2FC2956441}"
@@ -37,6 +39,7 @@ Global
 		{5CC10D85-2DA2-4386-98C8-3F2FC2956441}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{5CC10D85-2DA2-4386-98C8-3F2FC2956441}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{5CC10D85-2DA2-4386-98C8-3F2FC2956441}.Release|x86.ActiveCfg = Release|Any CPU
+		{5CC10D85-2DA2-4386-98C8-3F2FC2956441}.Release|x86.Build.0 = Release|Any CPU
 		{86691737-E067-40BC-BA2A-F757DBC41E4D}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{86691737-E067-40BC-BA2A-F757DBC41E4D}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
 		{86691737-E067-40BC-BA2A-F757DBC41E4D}.Debug|Mixed Platforms.Build.0 = Debug|x86
