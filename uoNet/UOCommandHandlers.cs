@@ -110,7 +110,7 @@ namespace uoNet
         /// <param name="TypeOrID"></param>
         /// <param name="VisibleOnly">Search for visible items only</param>
         /// <returns>Returns list of FoundItem matching Type or ID</returns>
-        public List<FoundItem> FindItem(int TypeOrID, bool VisibleOnly = true)
+        public List<FoundItem> FindItem(uint TypeOrID, bool VisibleOnly = true)
         {
             int itemcnt = ScanItems(VisibleOnly);
             List<FoundItem> items = new List<FoundItem>();
@@ -142,7 +142,7 @@ namespace uoNet
         }
 
 
-        public void UseSkill(Enums.Skill Skill)
+        public void UseSkill(Skill Skill)
         {
             EventMacro(13, (int)Skill);
         }
@@ -193,7 +193,7 @@ namespace uoNet
         
         public void PathFind(int X, int Y, int Z)
         {
-            _executeCommand(false, "PathFind", new object[] { X, Y, Z });
+            _executeCommand(false, "Pathfind", new object[] { X, Y, Z });
         }
         public PropertyInfo Property(int ItemID)
         {
@@ -267,7 +267,7 @@ namespace uoNet
             if(results != null){return (int)results[0]; }
             return 0;
         }
-        public Skill GetSkill(string SKill)
+        public SkillStatus GetSkill(string SKill)
         {
             //Todo Replace with enum?
             return null;
@@ -283,7 +283,7 @@ namespace uoNet
         public bool Move(int X, int Y,int Accuracy,int TimeoutMS)
         {
             var results = _executeCommand(true, "Move", new object[] { X, Y, Accuracy, TimeoutMS });
-            if (results != null) { if (results[0] == "true") { return true; } return false; }
+            if (results != null) { if (((string)results[0]).Equals("True")) { return true; } return false; }
             return false;
         }
         public void Msg(string Message)
@@ -330,7 +330,7 @@ namespace uoNet
         public bool TileInit(bool NoOverRides)
         {
             var results = _executeCommand(true,"TileInit",new object[] {NoOverRides});
-            if (results != null) { return (bool)results[0]; }
+            if (results != null) { return "True".Equals(results[0]); }
             return false;
         }
         public int TileCnt(int X,int Y,int Facet)
@@ -342,91 +342,16 @@ namespace uoNet
         public Tile TileGet(int X,int Y,int Index,int Facet)
         {
             var results = _executeCommand(true, "TileGet", new object[] { X, Y, Index, Facet });
-            if (results != null) { return new Tile(results); }
+            if (results != null) { return new Tile(results,X,Y); }
             return null;
         }
         #endregion
 
-        #region DataTypes
-        public class Tile
-        {
-            public int Type, Z;
-            public string Name;
-            public int Flags;
-            public Tile(List<object> data)
-            {
-                if (data.Count() < 4)// throw an error
-                    return;
-                this.Type = (int)data[0];
-                this.Z = (int)data[1];
-                this.Name = (string)data[2];
-                this.Flags = (int)data[3];
-            }
-        }
-        public class Container
-        {
-            public int Kind, X, Y, SX, SY, ID, Type;
-            public string Name;
-            public Container(List<object> data)
-            {
-                if (data.Count() < 8)// throw an error
-                    return;
-                this.Kind = (int)data[0];
-                this.X = (int)data[1];
-                this.Y = (int)data[2];
-                this.SX = (int)data[3];
-                this.SY = (int)data[4];
-                this.ID = (int)data[5];
-                this.Type = (int)data[6];
-                this.Name = (string)data[7];
-            }
-            public Container()
-            {
 
-            }
-        }
-        public class Skill
-        {
-            public int Normal, Real, Cap, Lock;
-        }
-
-        public class JournalEntry
-        {
-            public string Line;
-            public int Col;
-
-
-            public JournalEntry(string p1, int p2)
-            {
-                // TODO: Complete member initialization
-                this.Line = p1;
-                this.Col = p2;
-            }
-        }
-
-        public class JournalScan
-        {
-            public int NewRef, Cnt;
-        }
-        public class PropertyInfo
-        {
-            public string Name;
-            public string Info;
-        }
-        public class FoundItem
-        {
-            public int ID;
-            public int Type;
-            public int Kind;
-            public int ContID;
-            public int X, Y, Z;
-            public int Stack, Rep, Col;
-        }
-        #endregion
 
 
         //Executes a GameDLL command, Idea taken from jultima http://code.google.com/p/jultima/
-        private List<object> _executeCommand(bool ReturnResults, string CommandName, object[] args)
+        public List<object> _executeCommand(bool ReturnResults, string CommandName, object[] args)
         {
             // Maybe return bool and results as an Out?
             List<object> Results = new List<object>();
@@ -475,4 +400,96 @@ namespace uoNet
             return Results;
         }
     }
+
+    #region DataTypes
+    public class Tile
+    {
+        public int Type, Z;
+        public string Name;
+        public int Flags;
+        public int x;
+        public int y;
+
+        public Tile(List<object> data)
+        {
+            if (data.Count() < 4)// throw an error
+                return;
+            this.Type = (int)data[0];
+            this.Z = (int)data[1];
+            this.Name = (string)data[2];
+            this.Flags = (int)data[3];
+        }
+
+        public Tile(List<object> data, int x, int y) : this(data)
+        {
+            this.x = x;
+            this.y = y;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var second = obj as Tile;
+            return second.x == x && second.y == y;
+        }
+    }
+    public class Container
+    {
+        public int Kind, X, Y, SX, SY, ID, Type;
+        public string Name;
+        public Container(List<object> data)
+        {
+            if (data.Count() < 8)// throw an error
+                return;
+            this.Kind = (int)data[0];
+            this.X = (int)data[1];
+            this.Y = (int)data[2];
+            this.SX = (int)data[3];
+            this.SY = (int)data[4];
+            this.ID = (int)data[5];
+            this.Type = (int)data[6];
+            this.Name = (string)data[7];
+        }
+        public Container()
+        {
+
+        }
+    }
+    public class SkillStatus
+    {
+        public int Normal, Real, Cap, Lock;
+    }
+
+    public class JournalEntry
+    {
+        public string Line;
+        public int Col;
+
+
+        public JournalEntry(string p1, int p2)
+        {
+            // TODO: Complete member initialization
+            this.Line = p1;
+            this.Col = p2;
+        }
+    }
+
+    public class JournalScan
+    {
+        public int NewRef, Cnt;
+    }
+    public class PropertyInfo
+    {
+        public string Name;
+        public string Info;
+    }
+    public class FoundItem
+    {
+        public int ID;
+        public int Type;
+        public int Kind;
+        public int ContID;
+        public int X, Y, Z;
+        public int Stack, Rep, Col;
+    }
+    #endregion
 }
