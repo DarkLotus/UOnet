@@ -38,20 +38,25 @@ namespace uoNet
         /// <returns>True if found, False if not found</returns>
         public bool InJournal(string StringToFind)
         {
-            journal.Clear(); // Maybe dont clear?
+            //journal.Clear(); // Maybe dont clear?
             var jf = this.ScanJournal(journalRef);
-            if(jf.NewRef > journalRef)
-            { // new journal entries
-            for(int i = journalRef; i < jf.NewRef;i++)
+            if (jf.NewRef != journalRef)
             {
-                journal.Add(GetJournal(i).Line);
-            }
-            journalRef = jf.NewRef;
+                for (int i = 0; i < jf.Cnt; i++)
+                {
+                    journal.Add(GetJournal(i).Line);
+                }
+                journalRef = jf.NewRef;
             }
 
             if (journal.Where(j => j.ToLower().Contains(StringToFind.ToLower())).Count() > 0)
                 return true;
             return false;
+        }
+
+        public void ClearJournal()
+        {
+            journal.Clear();
         }
         /// <summary>
         /// Finds the designated string in new journal entries since last call.
@@ -60,23 +65,24 @@ namespace uoNet
         /// <returns>Returns found string or string.Empty if not found</returns>
         public string InJournal(string[] StringsToFind)
         {
-            journal.Clear(); // Maybe dont clear?
+            //journal.Clear(); // Maybe dont clear?
             var jf = this.ScanJournal(journalRef);
-            if (jf.NewRef > journalRef)
-            { // new journal entries
-                for (int i = journalRef; i < jf.NewRef; i++)
+            if(jf.NewRef != journalRef)
+            {
+                for (int i = 0; i < jf.Cnt; i++)
                 {
                     journal.Add(GetJournal(i).Line);
                 }
                 journalRef = jf.NewRef;
             }
+          
 
             foreach (string s in StringsToFind)
             {
                 if (journal.Where(j => j.ToLower().Contains(s.ToLower())).Count() > 0)
                     return s;
             }
-            return string.Empty;
+            return null;
         }
 
         /// <summary>
@@ -258,13 +264,13 @@ namespace uoNet
         {
             var results = _executeCommand(true, "GetJournal", new object[] { index });
             if (results != null)
-                return new JournalEntry((string)results[0], (int)results[1]);
+                return new JournalEntry((string)results[0], 0); //int.Parse((string)results[1])
             return null;
         }
         public int GetPix(int X,int Y)
         {
             var results = _executeCommand(true,"GetPix",new object[] {X,Y});
-            if(results != null){return (int)results[0]; }
+            if(results != null){return int.Parse((string)results[0]); }
             return 0;
         }
         public SkillStatus GetSkill(string SKill)
@@ -307,8 +313,8 @@ namespace uoNet
             if (results != null)
             {
                 JournalScan j = new JournalScan();
-                j.NewRef = (int)results[0];
-                j.Cnt = (int)results[1];
+                j.NewRef = int.Parse((string)results[0]);
+                j.Cnt = int.Parse((string)results[1]);
                 return j;
             }
             return null;
@@ -336,7 +342,7 @@ namespace uoNet
         public int TileCnt(int X,int Y,int Facet)
         {
             var results = _executeCommand(true, "TileCnt", new object[] { X,Y,Facet });
-            if (results != null) { return (int)results[0]; }
+            if (results != null) { return int.Parse((string)results[0]); }
             return 0;
         }
         public Tile TileGet(int X,int Y,int Index,int Facet)
@@ -414,10 +420,10 @@ namespace uoNet
         {
             if (data.Count() < 4)// throw an error
                 return;
-            this.Type = (int)data[0];
-            this.Z = (int)data[1];
+            this.Type = int.Parse((string)data[0]);
+            this.Z = int.Parse((string)data[1]);
             this.Name = (string)data[2];
-            this.Flags = (int)data[3];
+            this.Flags = int.Parse((string)data[3]);
         }
 
         public Tile(List<object> data, int x, int y) : this(data)
@@ -440,13 +446,13 @@ namespace uoNet
         {
             if (data.Count() < 8)// throw an error
                 return;
-            this.Kind = (int)data[0];
-            this.X = (int)data[1];
-            this.Y = (int)data[2];
-            this.SX = (int)data[3];
-            this.SY = (int)data[4];
-            this.ID = (int)data[5];
-            this.Type = (int)data[6];
+            this.Kind = int.Parse((string)data[0]);
+            this.X = int.Parse((string)data[1]);
+            this.Y = int.Parse((string)data[2]);
+            this.SX = int.Parse((string)data[3]); ;
+            this.SY = int.Parse((string)data[4]);
+            this.ID = int.Parse((string)data[5]);
+            this.Type = int.Parse((string)data[6]);
             this.Name = (string)data[7];
         }
         public Container()

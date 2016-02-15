@@ -70,10 +70,10 @@ namespace uoNetExample
 
                 for(i = 0; i < 22;i++)
                 {
-                    UO.PathFind(Locs[i].Item1, Locs[i].Item2, UO.CharPosZ);
-                    UO.Move(Locs[i].Item1, Locs[i].Item2, 0, 5000);
+                   // UO.PathFind(Locs[i].Item1, Locs[i].Item2, UO.CharPosZ);
+                   // UO.Move(Locs[i].Item1, Locs[i].Item2, 0, 5000);
                     CheckStatus();
-                   // MineLocationLoop();
+                    MineLocationLoop();
                 }
 
 
@@ -83,12 +83,7 @@ namespace uoNetExample
                     UO.PathFind(Locs[i].Item1, Locs[i].Item2, UO.CharPosZ);
                     UO.Move(Locs[i].Item1, Locs[i].Item2, 0, 5000);
                 }
-                //UO.EventMacro(13, 21);// Use Hiding via traditional EventMacro
-                //UO.UseSkill(uoNet.Enums.Skill.Hiding);//
-                //Console.WriteLine("Waiting Timeout after Hiding");
-                //Thread.Sleep(12000);// Wait 12 seconds
-
-
+             
             }
 
 
@@ -96,6 +91,9 @@ namespace uoNetExample
 
         private static void MineLocationLoop()
         {
+            minedTiles.Clear();
+            UO.InJournal("test");
+            UO.ClearJournal();
             var tile = Tile();
             while (tile != null)
             {
@@ -108,21 +106,42 @@ namespace uoNetExample
                 
                 CheckStatus();
                 var tool = UO.FindItem(uoNet.Tools.EUOToInt(miningtool)).First();
+                if(tool == null)
+                {
+                    CraftTool();
+                    continue;
+                }
                 UO.LObjectID = tool.ID;
                 UO.EventMacro(17, 0);
                 UO.Target(5000);
+                UO.ClearJournal();
                 UO.EventMacro(22, 0);
-                Thread.Sleep(5000);
-                tile = Tile();
+                UO.Wait(5);
+                for (int i = 0; i < 10; i++)
+                {
+                    if (UO.InJournal(new string[] {"you loosen some","you put" }) != null)
+                        break;
+                    if (UO.InJournal(new string[] {"nothing here","far away","immune","line of","try mining","cannot mine","that is too" }) != null)
+                    {
+                        tile = Tile();
+                        break;
+                    }
+                    UO.Wait(5);
+                }
+                //replace with journal scan
+
             }
+
+
         }
 
+        private static void CraftTool()
+        {
+            //var tool = UO.FindItem(uoNet.Tools.EUOToInt(tinkertool)).First();
+        }
 
         private static Tile Tile()
-        {
-            var results = UO._executeCommand(true, "TileInit", new object[] { false });
-            
-           
+        {  
             UO.TileInit(false);
             for(int x = -2; x <= 2; x++)
             {
@@ -130,9 +149,11 @@ namespace uoNetExample
                 {
                     for (int z = 0; z <= 3; z++)
                     {
-                        var tile = UO.TileGet(UO.CharPosX + x, UO.CharPosY + y, z, 0);
+                        var charx = UO.CharPosX + x;
+                        var tile = UO.TileGet(charx, UO.CharPosY + y, z, 0);
                         if (tileTypes.Contains(tile.Type) && !minedTiles.Contains(tile))
                         {
+                            minedTiles.Add(tile);
                             return tile;
                         }
 
