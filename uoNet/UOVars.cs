@@ -168,6 +168,20 @@ namespace uoNet
                 return GetInt("Mana");
             }
         }
+        public void UseObject(FoundItem tinker)
+        {
+            UseObject(tinker.ID);
+        }
+
+        private void UseObject(int iD)
+        {
+            this.LObjectID = iD;
+            this.EventMacro(17, 0);
+        }
+        public void UseObject(string ID)
+        {
+            UseObject(Tools.EUOToInt(ID));
+        }
 
         public int MaxMana
         {

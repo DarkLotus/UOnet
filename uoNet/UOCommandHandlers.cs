@@ -110,10 +110,10 @@ namespace uoNet
             }
             return false;
         }
-        public List<FoundItem> FindItem(string TypeOrID, bool VisibleOnly = true)
+        public List<FoundItem> FindItem(string TypeOrID, bool VisibleOnly = true, int containerID = 0)
         {
             if(TypeOrID.Length == 3)
-                return FindItem(uoNet.Tools.EUOToUshort(TypeOrID));
+                return FindItem(uoNet.Tools.EUOToUshort(TypeOrID),VisibleOnly,containerID);
             return FindItem(uoNet.Tools.EUOToInt(TypeOrID));
         }
 
@@ -123,7 +123,7 @@ namespace uoNet
         /// <param name="TypeOrID"></param>
         /// <param name="VisibleOnly">Search for visible items only</param>
         /// <returns>Returns list of FoundItem matching Type or ID</returns>
-        public List<FoundItem> FindItem(uint TypeOrID, bool VisibleOnly = true)
+        public List<FoundItem> FindItem(int TypeOrID, bool VisibleOnly = true, int containerID = 0)
         {
             int itemcnt = ScanItems(VisibleOnly);
             List<FoundItem> items = new List<FoundItem>();
@@ -132,7 +132,7 @@ namespace uoNet
                 FoundItem item = GetItem(i);
                 if (item != null)
                 {
-                    if (item.Type == TypeOrID || item.ID == TypeOrID)
+                    if (item.Type == TypeOrID || item.ID == TypeOrID && (containerID == 0 || item.ContID == containerID))
                         items.Add(item);
                 }
 
@@ -146,11 +146,11 @@ namespace uoNet
         /// <param name="TypeOrID"></param>
         /// <param name="VisibleOnly"> Search for visible items only</param>
         /// <returns>Returns list of FoundItem matching Type or ID</returns>
-        public List<FoundItem> FindItem(ushort[] Types, bool VisibleOnly = true)
+        public List<FoundItem> FindItem(ushort[] Types, bool VisibleOnly = true, int containerID = 0)
         {
             List<FoundItem> items = new List<FoundItem>();
             foreach (var ty in Types)
-                items.AddRange(FindItem(ty, true));
+                items.AddRange(FindItem(ty, VisibleOnly, containerID));
             return items;
         }
 
@@ -177,9 +177,25 @@ namespace uoNet
         {
             _executeCommand(false, "Drag", new object[] { ItemID, Amount });
         }
+        public void DragDropC(int Item, int amount, int Target)
+        {
+            Drag(Item, amount);
+            Thread.Sleep(500);
+            DropC(Target);
+            Thread.Sleep(500);
+        }
+
+        public void DropC(string ContID, int X, int Y)
+        {
+            DropC(Tools.EUOToInt(ContID), X, Y);
+        }
         public void DropC(int ContID, int X, int Y)
         {
             _executeCommand(false, "DropC", new object[] { ContID, X, Y });
+        }
+        public void DropC(string EUOID)
+        {
+            DropC(Tools.EUOToInt(EUOID));
         }
         public void DropC(int ContID)
         {
@@ -306,6 +322,7 @@ namespace uoNet
         public void Msg(string Message)
         {
             _executeCommand(false, "Msg", new object[] { Message });
+            Key("enter", false, false, false);
         }
         
         public int ScanItems(bool VisibleOnly)

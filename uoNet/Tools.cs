@@ -48,7 +48,7 @@ namespace uoNet
                 return xdif;
             }
         }
-        public static uint EUOToInt(String val)
+        public static int EUOToInt(String val)
         //Code by BtbN
         {
             val = val.ToUpper(); // Important!
@@ -60,7 +60,7 @@ namespace uoNet
 
             num = (num - 7) ^ 0x45;
 
-            return num;
+            return (int)num;
         }
         public static ushort EUOToUshort(String val)
         //Code by BtbN

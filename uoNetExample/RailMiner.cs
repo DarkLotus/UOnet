@@ -10,12 +10,17 @@ namespace uoNetExample
 
     static class Items
     {
-        public static string PickAxe = "NPF";
-        public static string Forge = "JBG";
+        public static readonly string PickAxe = "NPF";
+        public static readonly string Forge = "JBG";
+        public static readonly string Ore_Large = "DWJ";
+        public static readonly string Tinker_Tool = "GTL";
+        public static readonly string Ingot = "RMK";
     }
     class RailMiner
     {
         Vector3 _forgeLoc = new Vector3(2429, 181);
+
+        string _chestID = "DDSBKMD";
 
         List<Vector3> _homeToMine = new List<Vector3> { new Vector3(2464,135),
         new Vector3(2457,146),
@@ -37,17 +42,19 @@ namespace uoNetExample
 
         internal void Loop()
         {
-            while(true)
+            UOD.Msg("_waitmenu 'Tinkering' 'Tools' 'Tools' 'pickaxe'");
+            while (true)
             {
-                if(CheckStatus(false))
+                if(CheckHome())
                 {
                     if(Tools.Get2DDistance(UOD.CharPosX,UOD.CharPosY, _forgeLoc.X,_forgeLoc.Y) > 20)
                         _homeToMine.ForEach(i => UOD.Move(i.X,i.Y,1,10000));
                     MineLoop();
-                    Bank();
+
                     _homeToMine.Reverse();
                     _homeToMine.ForEach(i => UOD.Move(i.X, i.Y, 1, 10000));
                     _homeToMine.Reverse();
+                    Bank();
                 }
                
                
@@ -56,9 +63,11 @@ namespace uoNetExample
 
         }
 
+       
+
         private void Bank()
         {
-            throw new NotImplementedException();
+              UOD.FindItem(Items.Ore_Large).ForEach(ore => { if (ore.ContID == UOD.BackpackID) { UOD.DragDropC(ore.ID, ore.Stack, Tools.EUOToInt(_chestID)); } });
         }
 
         private void MineLoop()
@@ -76,7 +85,7 @@ namespace uoNetExample
                 UOD.LTargetTile = tile.Type;
                 UOD.LTargetKind = 3;
 
-                if (!CheckStatus(true))
+                if (!CheckMiningStatus())
                     return;
                 var tool = UOD.FindItem(Items.PickAxe).First();
                
@@ -90,11 +99,14 @@ namespace uoNetExample
                 {
                     if (UOD.InJournal(new string[] { "you loosen some", "you put" }) != null)
                         break;
-                    if (UOD.InJournal(new string[] { "nothing here", "far away", "immune", "line of", "try mining", "cannot mine", "that is too" }) != null)
+                    if (UOD.InJournal(new string[] { "cannot mine" }) != null)
+                        UOD.Move(tile.x +Rand(1), tile.y + Rand(1), 1, 5000);
+                    if (UOD.InJournal(new string[] { "nothing here", "far away", "immune", "line of", "try mining", "that is too" }) != null)
                     {
                         tile = Tile(2,2);
                         break;
                     }
+
                     Thread.Sleep(250);
                 }
                 //replace with journal scan
@@ -103,25 +115,72 @@ namespace uoNetExample
 
         }
 
-        private bool CheckStatus(bool isMining)
+
+        private int Rand(int i )
         {
-            //check for tinker tools / ingots / pickaxes.
-            //Craft / grab as needed
-           /* var tool = UOD.FindItem(Items.PickAxe).FirstOrDefault();
-            if (tool == null)
+            return new Random().Next(i * 2) - i;
+        }
+        private bool CheckHome()
+        {
+            var tool = UOD.FindItem(Items.PickAxe).Where(p => p.ContID == UOD.BackpackID);
+            if(tool == null || tool.Count() < 3 )
             {
-                if(!CraftTool())
-                {
+                UOD.UseObject(_chestID);
+                //sleep for gump
+                Thread.Sleep(1000);
+                if (!CraftTool(3))
                     return false;
-                }
-                
-            }*/
+            }
             return true;
         }
 
-        private bool CraftTool()
+        private bool CheckMiningStatus()
         {
-            throw new NotImplementedException();
+            //check for tinker tools / ingots / pickaxes.
+            //Craft / grab as needed
+            var tool = UOD.FindItem(Items.PickAxe).FirstOrDefault();
+            if (tool == null)
+            {         
+                return false;
+            }
+            if (UOD.Weight > UOD.MaxWeight - 50)
+            {
+                var curx = UOD.CharPosX;
+                var cury = UOD.CharPosY;
+                UOD.PathFind(_forgeLoc);
+                while (UOD.CharPosX != _forgeLoc.X && UOD.CharPosY != _forgeLoc.Y)
+                    Thread.Sleep(10);
+                UOD.FindItem(Items.Ore_Large).ForEach(ore => { UOD.UseObject(ore); Thread.Sleep(500); });
+                int numOre = 0;
+                UOD.FindItem(Items.Ingot).ForEach(ore => numOre += ore.Stack);
+                if (numOre > 250)
+                    return false;
+                UOD.PathFind(curx,cury,0);
+                while (UOD.CharPosX != curx && UOD.CharPosY != cury)
+                    Thread.Sleep(10);
+
+            }
+            //check for dead
+            return true;
+        }
+
+        private bool CraftTool(int cnt)
+        {
+            var tinker = UOD.FindItem(Items.Tinker_Tool).FirstOrDefault();
+            UOD.DragDropC(tinker.ID, 1, UOD.BackpackID);
+            var iron = UOD.FindItem(Items.Ingot).Where(i => i.Col == 0 && i.ContID == Tools.EUOToInt(_chestID)).FirstOrDefault();
+            UOD.DragDropC(iron.ID, 50, UOD.BackpackID);
+            for(int i = 0; i < cnt;)
+            {
+                UOD.Msg("_waitmenu 'Tinkering' 'Tools' 'Tools' 'pickaxe'");
+                UOD.UseObject(tinker);
+                Thread.Sleep(5000);
+                i = UOD.FindItem(Items.PickAxe).Count;
+            }
+            UOD.DragDropC(iron.ID, 50, Tools.EUOToInt(_chestID));
+            iron = UOD.FindItem(Items.Ingot).Where(i => i.Col == 0 && i.ContID == UOD.BackpackID).FirstOrDefault();
+            UOD.DragDropC(tinker.ID, 1, Tools.EUOToInt(_chestID));
+            return true;
         }
 
         private Tile Tile(int xrange,int yrange)
