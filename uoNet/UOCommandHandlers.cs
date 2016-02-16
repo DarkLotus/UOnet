@@ -110,6 +110,13 @@ namespace uoNet
             }
             return false;
         }
+        public List<FoundItem> FindItem(string TypeOrID, bool VisibleOnly = true)
+        {
+            if(TypeOrID.Length == 3)
+                return FindItem(uoNet.Tools.EUOToUshort(TypeOrID));
+            return FindItem(uoNet.Tools.EUOToInt(TypeOrID));
+        }
+
         /// <summary>
         /// Returns list of FoundItem matching Type or ID
         /// </summary>
@@ -196,7 +203,11 @@ namespace uoNet
             _executeCommand(false, "Macro", new object[] { Par1, Par2, Str });
         }
 
-        
+        public void PathFind(Vector3 i)
+        {
+            PathFind(i.X, i.Y, i.Z);
+        }
+
         public void PathFind(int X, int Y, int Z)
         {
             _executeCommand(false, "Pathfind", new object[] { X, Y, Z });

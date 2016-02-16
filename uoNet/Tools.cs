@@ -22,6 +22,10 @@ namespace uoNet
 
             return res;
         }
+        public static int Get2DDistance(int X1, int Y1, int X2, int Y2)
+        {
+            return Get2DDistance((ushort)X1, (ushort)Y1, (ushort)X2, (ushort)Y2);
+        }
         public static int Get2DDistance(ushort X1, ushort Y1, ushort X2, ushort Y2)
         {
             //Taken from UOLite2

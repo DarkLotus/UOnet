@@ -8,7 +8,7 @@ namespace uoNet
     public partial class UO
     {
         // Handle for UO.dll
-        public IntPtr UOHandle;
+        public static IntPtr UOHandle;
         //Get and Set Handlers
         #region GetterSetterHelpers
         private bool GetBoolean(string command)
@@ -31,6 +31,8 @@ namespace uoNet
             UODLL.PushBoolean(UOHandle, value);
             UODLL.Execute(UOHandle);
         }
+
+
 
         private int GetInt(string command)
         {

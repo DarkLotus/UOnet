@@ -30,33 +30,37 @@ namespace uoNetExample
 
         static String miningtool = "NPF";
         static String bankStone = "YBUSJMD";
-       // static List<Tuple<int, int>> Locs = new List<Tuple<int, int>>();
+        static Tuple<int, int>[] Locs = { new Tuple<int, int>(2464, 135), };
 
-        static Tuple<int, int>[] Locs = { new Tuple<int, int>(2488, 487),
-        new Tuple<int, int>(2500, 487),
-        new Tuple<int, int>(2511, 487),
-        new Tuple<int, int>(2523, 491),
-        new Tuple<int, int>(2526, 500),
-        new Tuple<int, int>(2536, 500),
-        new Tuple<int, int>(2552, 502),
-        new Tuple<int, int>(2558, 502),
-        new Tuple<int, int>(2557, 497),
-        new Tuple<int, int>(2559, 492),
-        new Tuple<int, int>(2560, 488),
-        new Tuple<int, int>(2563, 484),
-        new Tuple<int, int>(2565, 481),
-        new Tuple<int, int>(2568, 476),
-        new Tuple<int, int>(2573, 476),
-        new Tuple<int, int>(2576, 477),
-        new Tuple<int, int>(2579, 480),
-        new Tuple<int, int>(2576, 483),
-        new Tuple<int, int>(2573, 480),
-        new Tuple<int, int>(2571, 484),
-        new Tuple<int, int>(2570, 487),
-        new Tuple<int, int>(2566, 488),
 
-        };
+
+
+        /*  static Tuple<int, int>[] MinocTown = { new Tuple<int, int>(2488, 487),
+          new Tuple<int, int>(2500, 487),
+          new Tuple<int, int>(2511, 487),
+          new Tuple<int, int>(2523, 491),
+          new Tuple<int, int>(2526, 500),
+          new Tuple<int, int>(2536, 500),
+          new Tuple<int, int>(2552, 502),
+          new Tuple<int, int>(2558, 502),
+          new Tuple<int, int>(2557, 497),
+          new Tuple<int, int>(2559, 492),
+          new Tuple<int, int>(2560, 488),
+          new Tuple<int, int>(2563, 484),
+          new Tuple<int, int>(2565, 481),
+          new Tuple<int, int>(2568, 476),
+          new Tuple<int, int>(2573, 476),
+          new Tuple<int, int>(2576, 477),
+          new Tuple<int, int>(2579, 480),
+          new Tuple<int, int>(2576, 483),
+          new Tuple<int, int>(2573, 480),
+          new Tuple<int, int>(2571, 484),
+          new Tuple<int, int>(2570, 487),
+          new Tuple<int, int>(2566, 488),
+
+          };*/
         static int[] tileTypes = { 1339, 1340, 1341, 1342, 1343 };
+
         static List<Tile> minedTiles = new List<Tile>();
 
         static void Main(string[] args)
@@ -64,8 +68,11 @@ namespace uoNetExample
             if (!UO.Open()) { Console.WriteLine("UO.dll Unable to Connect to Game"); return; } // Attempts to open UO.DLL and connect to client.
             Console.WriteLine("uoNet Activated, Connected with CharName: " + UO.CharName); // All client variables can be accessed in this manner UO.VarName
 
+            var script = new RailMiner(UO);
             while (true)
             {
+                script.Loop();
+                return;
                 int i;
 
                 for(i = 0; i < 22;i++)
