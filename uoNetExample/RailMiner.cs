@@ -67,7 +67,8 @@ namespace uoNetExample
 
         private void Bank()
         {
-              UOD.FindItem(Items.Ore_Large).ForEach(ore => { if (ore.ContID == UOD.BackpackID) { UOD.DragDropC(ore.ID, ore.Stack, Tools.EUOToInt(_chestID)); } });
+            UOD.FindItem(Items.Ore_Large).ForEach(ore => { if (ore.ContID == UOD.BackpackID) { UOD.DragDropC(ore.ID, ore.Stack, Tools.EUOToInt(_chestID)); } });
+            UOD.FindItem(Items.Ingot).ForEach(ore => { if (ore.ContID == UOD.BackpackID) { UOD.DragDropC(ore.ID, ore.Stack, Tools.EUOToInt(_chestID)); } });
         }
 
         private void MineLoop()
@@ -76,8 +77,10 @@ namespace uoNetExample
             UOD.InJournal("test");
             UOD.ClearJournal();
             var tile = Tile(2,2);
+            int MoveFailCnt = 0;
             while (tile != null)
             {
+                
                 UOD.Move(tile.x, tile.y, 1,5000);
                 UOD.LTargetX = tile.x;
                 UOD.LTargetY = tile.y;
@@ -100,13 +103,22 @@ namespace uoNetExample
                     if (UOD.InJournal(new string[] { "you loosen some", "you put" }) != null)
                         break;
                     if (UOD.InJournal(new string[] { "cannot mine" }) != null)
-                        UOD.Move(tile.x +Rand(1), tile.y + Rand(1), 1, 5000);
+                    {
+                        if (MoveFailCnt > 5)
+                        {
+                            tile = Tile(2, 2);
+                            break;
+                        }
+                        UOD.Move(tile.x + Rand(1), tile.y + Rand(1), 0, 2000);
+                        MoveFailCnt++;
+                    }
+                        
                     if (UOD.InJournal(new string[] { "nothing here", "far away", "immune", "line of", "try mining", "that is too" }) != null)
                     {
                         tile = Tile(2,2);
                         break;
                     }
-
+                    
                     Thread.Sleep(250);
                 }
                 //replace with journal scan
@@ -131,6 +143,7 @@ namespace uoNetExample
                 if (!CraftTool(3))
                     return false;
             }
+            Bank();
             return true;
         }
 
@@ -147,17 +160,23 @@ namespace uoNetExample
             {
                 var curx = UOD.CharPosX;
                 var cury = UOD.CharPosY;
-                UOD.PathFind(_forgeLoc);
+                
                 while (UOD.CharPosX != _forgeLoc.X && UOD.CharPosY != _forgeLoc.Y)
-                    Thread.Sleep(10);
-                UOD.FindItem(Items.Ore_Large).ForEach(ore => { UOD.UseObject(ore); Thread.Sleep(500); });
+                {
+                    UOD.PathFind(_forgeLoc); Thread.Sleep(500);
+                }
+                    
+                UOD.FindItem(Items.Ore_Large).ForEach(ore => { UOD.UseObject(ore); Thread.Sleep(1000); });
                 int numOre = 0;
                 UOD.FindItem(Items.Ingot).ForEach(ore => numOre += ore.Stack);
-                if (numOre > 250)
+                if (numOre > 150)
                     return false;
-                UOD.PathFind(curx,cury,0);
+                
                 while (UOD.CharPosX != curx && UOD.CharPosY != cury)
-                    Thread.Sleep(10);
+                {
+                    UOD.PathFind(curx, cury, 0); Thread.Sleep(500);
+                }
+                    
 
             }
             //check for dead
@@ -205,6 +224,7 @@ namespace uoNetExample
             }
             if (xrange < 20)
                 return Tile(++xrange, ++yrange);
+            minedTiles.Clear();
             return null;
         }
         /*
