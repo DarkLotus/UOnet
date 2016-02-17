@@ -42,7 +42,7 @@ namespace uoNetExample
 
         internal void Loop()
         {
-            UOD.Msg("_waitmenu 'Tinkering' 'Tools' 'Tools' 'pickaxe'");
+            //UOD.PathFind(_secondForgeLoc);
             while (true)
             {
                 if(CheckHome())
@@ -82,7 +82,13 @@ namespace uoNetExample
             {
                 
                 UOD.Move(tile.x, tile.y, 1,5000);
-                UOD.LTargetX = tile.x;
+                if (Tools.Get2DDistance(tile.x, tile.y, UOD.CharPosX, UOD.CharPosY) > 2)
+                {
+                    tile = Tile(2, 2);
+                    break;
+                }
+
+                    UOD.LTargetX = tile.x;
                 UOD.LTargetY = tile.y;
                 UOD.LTargetZ = tile.Z;
                 UOD.LTargetTile = tile.Type;
