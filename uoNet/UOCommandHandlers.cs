@@ -110,6 +110,17 @@ namespace uoNet
             }
             return false;
         }
+        public List<FoundItem> FindItem(string[] TypeOrID, bool VisibleOnly = true, int containerID = 0)
+        {
+            var results = new List<FoundItem>();
+            foreach(var type in TypeOrID)
+            {
+                if (type.Length == 3)
+                    results.AddRange(FindItem(uoNet.Tools.EUOToUshort(type), VisibleOnly, containerID));
+                results.AddRange(FindItem(uoNet.Tools.EUOToInt(type)));
+            }
+            return results;
+        }
         public List<FoundItem> FindItem(string TypeOrID, bool VisibleOnly = true, int containerID = 0)
         {
             if(TypeOrID.Length == 3)

@@ -7,19 +7,21 @@ namespace uoNet
 {
     public static class UOHELPERS
     {
-        public static void SmartMove(this UO t, Vector3 v,int accuracy = 0)
+        public static bool SmartMove(this UO t, Vector3 v,int accuracy = 0)
         {
             var path = FindPath(t, new Vector3(t.CharPosX, t.CharPosY), v,accuracy);
-
-            for(int i = 0; i < path.Count;i++)
+            if (path == null)
+                return false;
+            for(int i = 1; i < path.Count;i++)
             {
                 if (i + 3 < path.Count -1)
                     i = i + 3;
                 var p = path[i];
                 t.PathFind(p.X, p.Y, 0);//, 2000);
                 t.Wait(5);
-                t.Move(p.X, p.Y, 0, 2000);
+                t.Move(p.X, p.Y, 0, 5000);
             }
+            return true;
 
         }
        
@@ -57,6 +59,8 @@ namespace uoNet
                 }
                 OpenSet.Sort();
                 ClosedSet.Add(curNode);
+                if (ClosedSet.Count > 25000)
+                    return null;
             }
 
             var resultPath = new List<Vector3>();
