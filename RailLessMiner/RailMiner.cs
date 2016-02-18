@@ -35,10 +35,8 @@ namespace RailLessMiner
         Rectangle _curBounding = new Rectangle();
         List<List<Vector3>> _MinePaths = new List<List<Vector3>>() {
                         new List<Vector3> { new Vector3(2464,135),
-                                new Vector3(2457,146),
-                                new Vector3(2451,159),
-                                new Vector3(2440,173),
-                                new Vector3(2430,177),new Vector3(2428,177),
+                                new Vector3(2464,161),
+                                new Vector3(2430,177),
                                 },
                         //Mine B
                         new List<Vector3> { new Vector3(2464,135),
@@ -66,14 +64,19 @@ namespace RailLessMiner
 
         internal void Loop()
         {
-           //UOD.SmartMove(new Vector3(2464, 135),1);
-           // return;
+            // UOD.SmartMove(new Vector3(2464, 135));
+            //UOD.SmartMove(new Vector3(1628, 1600), 1);
+            //UOD.SmartMove(new Vector3(2490, 419),1);
+            if (!CheckHome(-1))
+            {
+                return;
+            }
             while (true)
             {
-                if(CheckHome())
-                {
-                    for(int i = 2;i < _forges.Count;i++)
+                
+                    for(int i = 0;i < _forges.Count;i++)
                     {
+                        
                         Console.WriteLine("Starting Mine: " + i);
                         var rail = _MinePaths[i];
                         _currentForgeLoc = _forges[i];
@@ -85,13 +88,12 @@ namespace RailLessMiner
                         rail.Reverse();
                         rail.ForEach(m => UOD.SmartMove(m));
                         rail.Reverse();
-                        Bank(i);
+                    if (!CheckHome(i)) {
+                        return;
                     }
-                    minedTiles.Clear();
-                    
-                }
-               
-               
+
+                    }
+                    minedTiles.Clear();  
             }
             
 
@@ -103,7 +105,7 @@ namespace RailLessMiner
         private void Bank(int mineNumber)
         {
             int counter = 0;
-            UOD.FindItem(Items.Ores).ForEach(ore => {
+            UOD.FindItem(Items.MiningBankables).ForEach(ore => {
                 if (ore.ContID == UOD.BackpackID) {
                     counter += ore.Stack;
                     if (_runningTally.ContainsKey(ore.Col))
@@ -114,7 +116,6 @@ namespace RailLessMiner
                     UOD.DragDropC(ore.ID, ore.Stack, Tools.EUOToInt(_chestID));
 
                 } });
-            UOD.FindItem(Items.Ingot).ForEach(ore => { if (ore.ContID == UOD.BackpackID) { counter += ore.Stack; UOD.DragDropC(ore.ID, ore.Stack, Tools.EUOToInt(_chestID)); } });
             Console.WriteLine("Banked " + counter + " Ore this run for mine: " + mineNumber);
             Console.WriteLine("Totals for this session");
             foreach (var kv in _runningTally)
@@ -128,7 +129,6 @@ namespace RailLessMiner
             UOD.InJournal("Clearing Journal Cache");
             UOD.ClearJournal();
             Tile tile = null;
-            int MoveFailCnt = 0;
             while ((tile = Tile(1,1)) != null)
             {
                 if (!UOD.SmartMove(new Vector3(tile.x, tile.y), 1))
@@ -176,18 +176,23 @@ namespace RailLessMiner
             }
         }
 
-        private bool CheckHome()
+        private bool CheckHome(int mineNum)
         {
             var tool = UOD.FindItem(Items.PickAxe).Where(p => p.ContID == UOD.BackpackID);
-            if(tool == null || tool.Count() < 3 )
+            UOD.Move(_MinePaths[0][0].X, _MinePaths[0][0].Y, 0, 5000);
+            if (tool == null || tool.Count() < 3 )
             {
-                UOD.UseObject(_chestID);
-                //sleep for gump
-                Thread.Sleep(2000);
+                
+                while(UOD.ContKind != Tools.EUOToUshort("ASEB"))
+                {
+                    UOD.UseObject(_chestID);
+                    Thread.Sleep(500);
+                }
+                
                 if (!CraftTool(3))
                     return false;
             }
-            Bank();
+            Bank(mineNum);
             return true;
         }
 
@@ -205,9 +210,9 @@ namespace RailLessMiner
                 var curx = UOD.CharPosX;
                 var cury = UOD.CharPosY;
                 UOD.SmartMove(_currentForgeLoc); 
-                UOD.FindItem(Items.Ore_Large).ForEach(ore => { UOD.UseObject(ore); Thread.Sleep(1000); });
+                UOD.FindItem(Items.Ores).ForEach(ore => { UOD.UseObject(ore); Thread.Sleep(1500); });
                 int numOre = 0;
-                UOD.FindItem(Items.Ingot).ForEach(ore => numOre += ore.Stack);
+                UOD.FindItem(Items.Ingots).ForEach(ore => numOre += ore.Stack);
                 if (numOre > 150)
                     return false;
                 UOD.SmartMove(new Vector3(curx, cury));
@@ -219,8 +224,13 @@ namespace RailLessMiner
         private bool CraftTool(int cnt)
         {
             var tinker = UOD.FindItem(Items.Tinker_Tool).FirstOrDefault();
+            if (tinker == null)
+            {
+                Console.WriteLine("Out of Tinker Tools");
+                return false;
+            }
             UOD.DragDropC(tinker.ID, 1, UOD.BackpackID);
-            var iron = UOD.FindItem(Items.Ingot).Where(i => i.Col == 0 && i.ContID == Tools.EUOToInt(_chestID)).FirstOrDefault();
+            var iron = UOD.FindItem(Items.Ingots).Where(i => i.Col == 0 && i.ContID == Tools.EUOToInt(_chestID)).FirstOrDefault();
             UOD.DragDropC(iron.ID, 50, UOD.BackpackID);
             for(int i = 0; i < cnt;)
             {
@@ -230,7 +240,7 @@ namespace RailLessMiner
                 i = UOD.FindItem(Items.PickAxe).Count;
             }
             UOD.DragDropC(iron.ID, 50, Tools.EUOToInt(_chestID));
-            iron = UOD.FindItem(Items.Ingot).Where(i => i.Col == 0 && i.ContID == UOD.BackpackID).FirstOrDefault();
+            iron = UOD.FindItem(Items.Ingots).Where(i => i.Col == 0 && i.ContID == UOD.BackpackID).FirstOrDefault();
             UOD.DragDropC(tinker.ID, 1, Tools.EUOToInt(_chestID));
             return true;
         }
