@@ -14,8 +14,15 @@ namespace RailLessMiner
         public static readonly string PickAxe = "NPF";
         public static readonly string Forge = "JBG";
         public static readonly string Ore_Large = "DWJ";
+        public static readonly string Ore_Small = "TVJ";
+        public static readonly string Ore_SmallMed = "GWJ";
+        public static readonly string Ore_Med = "EWJ";
+        public static readonly string[] Ores = { "DWJ", "TVJ", "GWJ" , "EWJ" };
         public static readonly string Tinker_Tool = "GTL";
-        public static readonly string Ingot = "RMK";
+        public static readonly string IngotA = "RMK";
+        public static readonly string[] Ingots = { "RMK","TMK","XMK","NMK" };
+        public static readonly string[] MiningBankables = { "RMK", "TMK", "XMK", "NMK", "DWJ", "TVJ", "GWJ", "EWJ" };
+
     }
     class RailMiner
     {
@@ -41,8 +48,8 @@ namespace RailLessMiner
 
                         //Mine C
                         new List<Vector3> { new Vector3(2464,135),
-                                new Vector3(2464,84),
-                                new Vector3(1472,70),
+                                new Vector3(2464,94),
+                                new Vector3(2472,71),
                         }
         } ;
 
@@ -65,8 +72,9 @@ namespace RailLessMiner
             {
                 if(CheckHome())
                 {
-                    for(int i = 0;i < _forges.Count;i++)
+                    for(int i = 2;i < _forges.Count;i++)
                     {
+                        Console.WriteLine("Starting Mine: " + i);
                         var rail = _MinePaths[i];
                         _currentForgeLoc = _forges[i];
                         _curBounding = _boundingBoxMines[i];
@@ -75,10 +83,11 @@ namespace RailLessMiner
                         MineLoop();
 
                         rail.Reverse();
-                        rail.ForEach(m => UOD.Move(m.X, m.Y, 1, 10000));
+                        rail.ForEach(m => UOD.SmartMove(m));
                         rail.Reverse();
-                        Bank();
+                        Bank(i);
                     }
+                    minedTiles.Clear();
                     
                 }
                
@@ -88,32 +97,55 @@ namespace RailLessMiner
 
         }
 
-       
 
-        private void Bank()
+        Dictionary<int, int> _runningTally = new Dictionary<int, int>();
+
+        private void Bank(int mineNumber)
         {
-            UOD.FindItem(Items.Ore_Large).ForEach(ore => { if (ore.ContID == UOD.BackpackID) { UOD.DragDropC(ore.ID, ore.Stack, Tools.EUOToInt(_chestID)); } });
-            UOD.FindItem(Items.Ingot).ForEach(ore => { if (ore.ContID == UOD.BackpackID) { UOD.DragDropC(ore.ID, ore.Stack, Tools.EUOToInt(_chestID)); } });
+            int counter = 0;
+            UOD.FindItem(Items.Ores).ForEach(ore => {
+                if (ore.ContID == UOD.BackpackID) {
+                    counter += ore.Stack;
+                    if (_runningTally.ContainsKey(ore.Col))
+                        _runningTally[ore.Col] += ore.Stack;
+                    else
+                        _runningTally.Add(ore.Col, ore.Stack);
+
+                    UOD.DragDropC(ore.ID, ore.Stack, Tools.EUOToInt(_chestID));
+
+                } });
+            UOD.FindItem(Items.Ingot).ForEach(ore => { if (ore.ContID == UOD.BackpackID) { counter += ore.Stack; UOD.DragDropC(ore.ID, ore.Stack, Tools.EUOToInt(_chestID)); } });
+            Console.WriteLine("Banked " + counter + " Ore this run for mine: " + mineNumber);
+            Console.WriteLine("Totals for this session");
+            foreach (var kv in _runningTally)
+            {
+                Console.WriteLine("Color: " + kv.Key + " Amount: " + kv.Value);
+            }
         }
 
         private void MineLoop()
         {
-            minedTiles.Clear();
-            UOD.InJournal("test");
+            UOD.InJournal("Clearing Journal Cache");
             UOD.ClearJournal();
-            var tile = Tile(2,2);
+            Tile tile = null;
             int MoveFailCnt = 0;
-            while (tile != null)
+            while ((tile = Tile(1,1)) != null)
             {
-                UOD.SmartMove(new Vector3(tile.x, tile.y), 1);
-                //UOD.Move(tile.x, tile.y, 1,5000);
+                if (!UOD.SmartMove(new Vector3(tile.x, tile.y), 1))
+                    continue;
                 if (Tools.Get2DDistance(tile.x, tile.y, UOD.CharPosX, UOD.CharPosY) > 2)
-                {
-                    tile = Tile(2, 2);
-                    break;
-                }
+                    continue;
+                MineLocation(tile);
+            }
 
-                    UOD.LTargetX = tile.x;
+        }
+
+        private void MineLocation(Tile tile)
+        {
+            bool mining = true;
+            while(mining)
+            {
+                UOD.LTargetX = tile.x;
                 UOD.LTargetY = tile.y;
                 UOD.LTargetZ = tile.Z;
                 UOD.LTargetTile = tile.Type;
@@ -122,48 +154,28 @@ namespace RailLessMiner
                 if (!CheckMiningStatus())
                     return;
                 var tool = UOD.FindItem(Items.PickAxe).First();
-               
+
                 UOD.LObjectID = tool.ID;
                 UOD.EventMacro(17, 0);
                 UOD.Target(5000);
                 UOD.ClearJournal();
                 UOD.EventMacro(22, 0);
-                Thread.Sleep(250);
+                Thread.Sleep(500);
                 for (int i = 0; i < 25; i++)
                 {
                     if (UOD.InJournal(new string[] { "you loosen some", "you put" }) != null)
                         break;
-                    if (UOD.InJournal(new string[] { "cannot mine" }) != null)
+                    if (UOD.InJournal(new string[] { "nothing here", "far away", "immune", "line of", "try mining", "that is too", "cannot mine" }) != null)
                     {
-                      //  if (MoveFailCnt > 5)
-                     //   {
-                            tile = Tile(2, 2);
-                            break;
-                     //   }
-                       // UOD.SmartMove(new Vector3(tile.x, tile.y), 1);
-                        //UOD.Move(tile.x + Rand(1), tile.y + Rand(1), 0, 2000);
-                      //  MoveFailCnt++;
-                    }
-                        
-                    if (UOD.InJournal(new string[] { "nothing here", "far away", "immune", "line of", "try mining", "that is too" }) != null)
-                    {
-                        tile = Tile(2,2);
+                        mining = false;
                         break;
                     }
-                    
-                    Thread.Sleep(250);
+
+                    Thread.Sleep(300);
                 }
-                //replace with journal scan
-
             }
-
         }
 
-
-        private int Rand(int i )
-        {
-            return new Random().Next(i * 2) - i;
-        }
         private bool CheckHome()
         {
             var tool = UOD.FindItem(Items.PickAxe).Where(p => p.ContID == UOD.BackpackID);
@@ -171,7 +183,7 @@ namespace RailLessMiner
             {
                 UOD.UseObject(_chestID);
                 //sleep for gump
-                Thread.Sleep(1000);
+                Thread.Sleep(2000);
                 if (!CraftTool(3))
                     return false;
             }
@@ -179,7 +191,7 @@ namespace RailLessMiner
             return true;
         }
 
-        private bool CheckMiningStatus()
+        private bool CheckMiningStatus(bool forceSmelt = false)
         {
             //check for tinker tools / ingots / pickaxes.
             //Craft / grab as needed
@@ -188,28 +200,17 @@ namespace RailLessMiner
             {         
                 return false;
             }
-            if (UOD.Weight > UOD.MaxWeight - 50)
+            if (forceSmelt || UOD.Weight > UOD.MaxWeight - 50)
             {
                 var curx = UOD.CharPosX;
                 var cury = UOD.CharPosY;
-                
-                while (UOD.CharPosX != _currentForgeLoc.X && UOD.CharPosY != _currentForgeLoc.Y)
-                {
-                    UOD.PathFind(_currentForgeLoc); Thread.Sleep(500);
-                }
-                    
+                UOD.SmartMove(_currentForgeLoc); 
                 UOD.FindItem(Items.Ore_Large).ForEach(ore => { UOD.UseObject(ore); Thread.Sleep(1000); });
                 int numOre = 0;
                 UOD.FindItem(Items.Ingot).ForEach(ore => numOre += ore.Stack);
                 if (numOre > 150)
                     return false;
-                
-                while (UOD.CharPosX != curx && UOD.CharPosY != cury)
-                {
-                    UOD.PathFind(curx, cury, 0); Thread.Sleep(500);
-                }
-                    
-
+                UOD.SmartMove(new Vector3(curx, cury));
             }
             //check for dead
             return true;
@@ -225,7 +226,7 @@ namespace RailLessMiner
             {
                 UOD.Msg("_waitmenu 'Tinkering' 'Tools' 'Tools' 'pickaxe'");
                 UOD.UseObject(tinker);
-                Thread.Sleep(5000);
+                Thread.Sleep(6000);
                 i = UOD.FindItem(Items.PickAxe).Count;
             }
             UOD.DragDropC(iron.ID, 50, Tools.EUOToInt(_chestID));
@@ -237,9 +238,9 @@ namespace RailLessMiner
         private Tile Tile(int xrange,int yrange)
         {
             UOD.TileInit(false);
-            for (int x = -xrange; x <= xrange; x++)
+            for (int y = -yrange; y <= yrange; y++)
             {
-                for (int y = -yrange; y <= yrange; y++)
+                for (int x = -xrange; x <= xrange; x++)
                 {
                     var charx = UOD.CharPosX + x;
                     var chary = UOD.CharPosY + y;
@@ -259,7 +260,6 @@ namespace RailLessMiner
             }
             if (xrange < 50)
                 return Tile(++xrange, ++yrange);
-            minedTiles.Clear();
             return null;
         }
         /*
