@@ -31,7 +31,7 @@ namespace uoNet
 
                 foreach(var t in staticTile)
                 {
-                    if (t.Z < 12 && Ultima.TileData.ItemTable[t.ID].Flags.HasFlag(Ultima.TileFlag.Impassable))
+                    if (t.Z < land.Z + 12 && Ultima.TileData.ItemTable[t.ID].Flags.HasFlag(Ultima.TileFlag.Impassable))
                     {
                         isPassable = false;
                         return isPassable.Value;
