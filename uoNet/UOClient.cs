@@ -60,9 +60,10 @@ namespace uoNet
 
             var CameFrom = new List<Vector3>();
             Vector3 curNode = null;
-
+            int cnt = 0;
             while (OpenSet.Count > 0 )
             {
+
                 curNode = OpenSet.First();
                 OpenSet.RemoveAt(0);
 
@@ -85,9 +86,12 @@ namespace uoNet
                 }
                 OpenSet.Sort();
                 closedSet[curNode.X, curNode.Y] = curNode;
-               // ClosedSet.Add(curNode);
-               // if (ClosedSet.Count > 50000)
+                // ClosedSet.Add(curNode);
+                // if (ClosedSet.Count > 50000)
                 //    return null;
+                cnt++;
+                if (cnt > 50000)
+                    return null;
             }
 
             var resultPath = new List<Vector3>();

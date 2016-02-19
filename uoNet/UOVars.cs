@@ -72,11 +72,11 @@ namespace uoNet
                 return GetInt("CharType");
             }
         }
-        public int CharStatus
+        public string CharStatus
         {
             get
             {
-                return GetInt("CharStatus");
+                return GetString("CharStatus");
             }
         }
         public int BackpackID
@@ -173,7 +173,7 @@ namespace uoNet
             UseObject(tinker.ID);
         }
 
-        private void UseObject(int iD)
+        public void UseObject(int iD)
         {
             this.LObjectID = iD;
             this.EventMacro(17, 0);

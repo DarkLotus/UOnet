@@ -191,9 +191,9 @@ namespace uoNet
         public void DragDropC(int Item, int amount, int Target)
         {
             Drag(Item, amount);
-            Thread.Sleep(500);
+            Thread.Sleep(750);
             DropC(Target);
-            Thread.Sleep(500);
+            Thread.Sleep(750);
         }
 
         public void DropC(string ContID, int X, int Y)
