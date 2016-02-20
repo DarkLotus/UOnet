@@ -26,21 +26,7 @@ namespace RailLessMiner
             File.AppendAllText("log.txt", output + "\n");
         }
     }
-    static class Items
-    {
-        public static readonly string PickAxe = "NPF";
-        public static readonly string Forge = "JBG";
-        public static readonly string Ore_Large = "DWJ";
-        public static readonly string Ore_Small = "TVJ";
-        public static readonly string Ore_SmallMed = "GWJ";
-        public static readonly string Ore_Med = "EWJ";
-        public static readonly string[] Ores = { "DWJ", "TVJ", "GWJ" , "EWJ" };
-        public static readonly string Tinker_Tool = "GTL";
-        public static readonly string IngotA = "RMK";
-        public static readonly string[] Ingots = { "RMK","TMK","XMK","NMK" };
-        public static readonly string[] MiningBankables = { "RMK", "TMK", "XMK", "NMK", "DWJ", "TVJ", "GWJ", "EWJ" };
-
-    }
+ 
     class RailMiner
     {
         List<Vector3> _forges = new List<uoNet.Vector3> { new Vector3(2429, 181), new Vector3(2445, 97), new Vector3(2469, 69) };
@@ -199,43 +185,59 @@ namespace RailLessMiner
         private bool CheckHome(int mineNum)
         {
             if (UOD.CharStatus.Contains("G"))
-                Ress();
-            var tool = UOD.FindItem(Items.PickAxe).Where(p => p.ContID == UOD.BackpackID);
-            UOD.Move(_MinePaths[0][0].X, _MinePaths[0][0].Y, 0, 5000);
-            if (tool == null || tool.Count() < 3 )
             {
                 
+                Ress();
+            }
+            var tool = UOD.FindItem(Items.PickAxe).Where(p => p.ContID == UOD.BackpackID);
+            UOD.Move(_MinePaths[0][0].X, _MinePaths[0][0].Y, 0, 5000);
+
+            Bank(mineNum);
+
+            if (tool == null || tool.Count() < 3 )
+            { 
                 while(UOD.ContID != Tools.EUOToInt(_chestID))
                 {
                     UOD.UseObject(_chestID);
                     Thread.Sleep(500);
                     if (UOD.CharStatus.Contains("G"))
                     {
-                        Ress();
+                        Logger.I("Killed while crafting");
+                        Ress();  
                         return CheckHome(mineNum);
-                    }
-                        
+                    }        
                 }
-                
                 if (!CraftTool(3))
                     return false;
             }
-            Bank(mineNum);
             return true;
         }
 
         private void Ress()
         {
+            Thread.Sleep(5000);
+            if (!UOD.CharStatus.Contains("G"))
+                return;
             Logger.I("Attempting to Ress");
             UOD.Msg("home home home");
             Thread.Sleep(10000);
             UOD.Move(5182, 1249, 0, 10000);
             UOD.Move(5182, 1224, 0, 20000);
+            UOD.Move(5182, 1224, 0, 20000);
+            if (UOD.CharPosX != 5182 || UOD.CharPosY != 1224)
+            {
+                Logger.I("Failed to get to NZ");
+                if(UOD.CharPosZ < 30)
+                    Ress();
+            }
             UOD.UseObject("WJVSJMD");
             Thread.Sleep(5000);
             UOD.Click(72, 99, true, true, false, false);
             Thread.Sleep(100);
             UOD.Click(72, 99, true, false, true, false);
+            Thread.Sleep(5000);
+            if (UOD.CharStatus.Contains("G"))
+                Ress();
 
             UOD.UseObject(UOD.BackpackID);
             UOD.Move(5171, 1230, 0, 10000);
@@ -276,7 +278,7 @@ namespace RailLessMiner
             }
             if (UOD.CharStatus.Contains("G"))
             {
-                Logger.I("Killed!");
+                Logger.I("Killed in MiningLoop");
                 return false;
             }
                 
