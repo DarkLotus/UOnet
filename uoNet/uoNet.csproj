@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Enums.cs" />
+    <Compile Include="ItemTypes.cs" />
     <Compile Include="Tools.cs" />
     <Compile Include="UOClient.cs" />
     <Compile Include="UOCommandHandlers.cs" />

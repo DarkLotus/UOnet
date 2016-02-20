@@ -53,7 +53,9 @@ namespace uoNet
 
         private static List<Vector3> FindPath(UO t, Vector3 start, Vector3 dest,int accuracy = 0)
         {
-            var closedSet = new Vector3[4096,4096];
+            //todo weight less for diagonal
+            // check diagonal move allowed.
+            var closedSet = new Vector3[6128,4096];
            // var ClosedSet = new List<Vector3>();
             var OpenSet = new List<Vector3>();
             OpenSet.Add(start);
