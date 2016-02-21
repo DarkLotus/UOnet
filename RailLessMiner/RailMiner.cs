@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -67,13 +68,16 @@ namespace RailLessMiner
 
         internal void Loop()
         {
-            // UOD.SmartMove(new Vector3(2464, 135));
+            _timer = System.Diagnostics.Stopwatch.StartNew();
+
+            UOD.SmartMove(new Vector3(2464, 135));
             //UOD.SmartMove(new Vector3(1628, 1600), 1);
             //UOD.SmartMove(new Vector3(2490, 419),1);
             if (!CheckHome(-1))
             {
                 return;
             }
+
             while (true)
             {
                 
@@ -104,6 +108,7 @@ namespace RailLessMiner
 
 
         Dictionary<int, int> _runningTally = new Dictionary<int, int>();
+        private Stopwatch _timer;
 
         private void Bank(int mineNumber)
         {
@@ -120,7 +125,7 @@ namespace RailLessMiner
 
                 } });
             Logger.I("Banked " + counter + " Ore this run for mine: " + mineNumber);
-            Logger.I("Totals for this session");
+            Logger.I("Totals for this session : " + _timer.Elapsed.ToString());
             foreach (var kv in _runningTally)
             {
                 Logger.I("Color: " + kv.Key + " Amount: " + kv.Value);
@@ -184,23 +189,21 @@ namespace RailLessMiner
 
         private bool CheckHome(int mineNum)
         {
-            if (UOD.CharStatus.Contains("G"))
+            if (UOD.CharGhost)
             {
-                
                 Ress();
             }
-            var tool = UOD.FindItem(Items.PickAxe).Where(p => p.ContID == UOD.BackpackID);
             UOD.Move(_MinePaths[0][0].X, _MinePaths[0][0].Y, 0, 5000);
-
             Bank(mineNum);
 
+            var tool = UOD.FindItem(Items.PickAxe).Where(p => p.ContID == UOD.BackpackID);
             if (tool == null || tool.Count() < 3 )
             { 
                 while(UOD.ContID != Tools.EUOToInt(_chestID))
                 {
                     UOD.UseObject(_chestID);
                     Thread.Sleep(500);
-                    if (UOD.CharStatus.Contains("G"))
+                    if (UOD.CharGhost)
                     {
                         Logger.I("Killed while crafting");
                         Ress();  
@@ -216,7 +219,7 @@ namespace RailLessMiner
         private void Ress()
         {
             Thread.Sleep(5000);
-            if (!UOD.CharStatus.Contains("G"))
+            if (!UOD.CharGhost)
                 return;
             Logger.I("Attempting to Ress");
             UOD.Msg("home home home");
@@ -236,7 +239,7 @@ namespace RailLessMiner
             Thread.Sleep(100);
             UOD.Click(72, 99, true, false, true, false);
             Thread.Sleep(5000);
-            if (UOD.CharStatus.Contains("G"))
+            if (UOD.CharGhost)
                 Ress();
 
             UOD.UseObject(UOD.BackpackID);
@@ -254,12 +257,13 @@ namespace RailLessMiner
             //check for tinker tools / ingots / pickaxes.
             //Craft / grab as needed
             var tool = UOD.FindItem(Items.PickAxe).Where(p => p.ContID == UOD.BackpackID).FirstOrDefault();
+            bool goingHome = false;
             if (tool == null)
             {
                 Logger.I("Out of Picks, heading Home!");
-                return false;
+                goingHome = true;
             }
-            if (forceSmelt || UOD.Weight > UOD.MaxWeight - 50)
+            if (goingHome || forceSmelt || UOD.Weight > UOD.MaxWeight - 50)
             {
                 Logger.I("Smelting Ore");
                 var curx = UOD.CharPosX;
@@ -274,13 +278,16 @@ namespace RailLessMiner
                 UOD.FindItem(Items.Ingots).ForEach(ore => numOre += ore.Stack);
                 if (numOre > 150)
                     return false;
-                UOD.SmartMove(new Vector3(curx, cury));
+                if(!goingHome)
+                    UOD.SmartMove(new Vector3(curx, cury));
             }
-            if (UOD.CharStatus.Contains("G"))
+            if (UOD.CharGhost)
             {
                 Logger.I("Killed in MiningLoop");
                 return false;
             }
+            if (goingHome)
+                return false;
                 
             return true;
         }
@@ -298,11 +305,14 @@ namespace RailLessMiner
             UOD.DragDropC(iron.ID, 50, UOD.BackpackID);
             for(int i = 0; i < cnt;)
             {
+                UOD.ClearJournal();
                 UOD.Msg("_waitmenu 'Tinkering' 'Tools' 'Tools' 'pickaxe'");
                 UOD.UseObject(tinker);
                 Thread.Sleep(6000);
+                if (UOD.InJournal("make anything"))
+                    break;
                 i = UOD.FindItem(Items.PickAxe).Where(p => p.ContID == UOD.BackpackID).Count();
-                if (UOD.CharStatus.Contains("G"))
+                if (UOD.CharGhost)
                 {
                     Logger.I("Ress Triggered From Craft!");
                     return true;
