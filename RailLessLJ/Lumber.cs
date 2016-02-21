@@ -14,16 +14,21 @@ namespace RailLessLJ
         int[] _resourceTiles = { 3230,3274,3275,3276,3277,3280,3283,3286,3288,3290,3293,3296,3299,3302 };
         private List<Tile> _usedTiles = new List<Tile>();
         private Vector3 _home = new Vector3(4445, 1154);
+        private Vector3 _forest = new Vector3(4441, 1184);
         Dictionary<int, int> _runningTally = new Dictionary<int, int>();
         private string _bankStoneID = "JCUSJMD";
         private string _bankChestID = "DCUXJMD";
         private string BankGumpKind = "UCHB";
 
-        public Lumber(UO uO)
+        public Lumber(UO uO, string bankStoneID, string bankChestID, Rectangle bounds, Vector3 home, Vector3 forest)
         {
             this.UOD = uO;
-
-            _curBounding = new Rectangle(4384,1182, 150, 150);
+            _curBounding = bounds;
+            _bankChestID = bankChestID;
+            _bankStoneID = bankStoneID;
+            _home = home;
+            _forest = forest;
+            //_curBounding = ;
         }
 
         internal void Loop()
@@ -31,7 +36,7 @@ namespace RailLessLJ
             while(true)
             {
                 Logger.I("Moving to Forest");
-                UOD.SmartMove(new Vector3(4441, 1184),1);
+                UOD.SmartMove(_forest, 1);
 
                 LumberLoop();
                 Logger.I("Moving to Bank");
@@ -47,10 +52,11 @@ namespace RailLessLJ
             //deposit logs
             //craft axes
            
-            if (UOD.CharStatus.Contains("G"))
-                Ress();
+
             var tool = UOD.FindItem(Items.Hatchet).Where(p => p.ContID == UOD.BackpackID);
             UOD.Move(_home.X, _home.Y, 0, 5000);
+            if (UOD.CharGhost)
+                Ress();
             UOD.UseObject(_bankStoneID);
             Thread.Sleep(5000);
             UOD.Click(250, 116, true, true, false, false);
@@ -84,7 +90,7 @@ namespace RailLessLJ
                 UOD.UseObject(tinker);
                 Thread.Sleep(6000);
                 i = UOD.FindItem(Items.Hatchet).Where(p => p.ContID == UOD.BackpackID).Count();
-                if (UOD.CharStatus.Contains("G"))
+                if (UOD.CharGhost)
                 {
                     Logger.I("Ress Triggered From Craft!");
                     return true;
@@ -98,7 +104,7 @@ namespace RailLessLJ
         }
         private void Ress()
         {
-            if (!UOD.CharStatus.Contains("G"))
+            if (!UOD.CharGhost)
                 return;
             Logger.I("Attempting to Ress");
            /* UOD.Msg("home home home");
@@ -167,7 +173,7 @@ namespace RailLessLJ
 
         private bool ChopLocation(Tile tile)
         {
-            Logger.I("Chopping Location: " + tile.x + " / " + tile.y);
+            //Logger.I("Chopping Location: " + tile.x + " / " + tile.y);
             var next = false;
             while(!next)
             {
@@ -245,7 +251,7 @@ namespace RailLessLJ
                     }
 
                 }
-                Logger.I("Trying: " + tilex + "/" + tiley);
+                //Logger.I("Trying: " + tilex + "/" + tiley);
                 tile = null;
             }
             Logger.I("No Trees left... Chopped: " + _usedTiles.Count + " trees");
