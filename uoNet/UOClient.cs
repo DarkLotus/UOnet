@@ -9,20 +9,27 @@ namespace uoNet
 {
     public static class UOHELPERS
     {
+        public static object FindPath(this UO t,Vector3 vector31, Vector3 vector32)
+        {
+            /* Bitmap bmp = new Bitmap(4096, 4096);
+             for (int x = 2300; x < 2700; x++)
+             {
+                 for (int y = 0; y < 600; y++)
+                 {
+                     var tile = new Vector3(x, y);
+                     bmp.SetPixel(x, y, tile.IsPassable() ? Color.Green : Color.Red);
+                 }
+             }
+             bmp.Save("testsm.png", ImageFormat.Png);
+             var vv = new Vector3(2475, 431).IsPassable();*/
+            var path = FindPath(t, vector31, vector32,0);
+            return null;
+        }
+
         public static bool SmartMove(this UO t, Vector3 v,int accuracy = 0)
         {
 
-           /*Bitmap bmp = new Bitmap(4096, 4096);
-            for(int x = 2300;x < 2700; x++)
-            {
-                for(int y = 0;y < 600; y++)
-                {
-                    var tile = new Vector3(x, y);
-                    bmp.SetPixel(x, y, tile.IsPassable() ? Color.Green : Color.Red);
-                }
-            }
-            bmp.Save("testsm.png",ImageFormat.Png);
-            var vv = new Vector3(2475, 431).IsPassable();*/
+           
             var path = FindPath(t, new Vector3(t.CharPosX, t.CharPosY), v,accuracy);
             if (path == null)
                 return false;
@@ -53,14 +60,14 @@ namespace uoNet
 
         private static List<Vector3> FindPath(UO t, Vector3 start, Vector3 dest,int accuracy = 0)
         {
+           // Bitmap bmp = new Bitmap(6128, 4096);
             //todo weight less for diagonal
             // check diagonal move allowed.
-            var closedSet = new Vector3[6128,4096];
-           // var ClosedSet = new List<Vector3>();
+            //var closedSet = new Vector3[6128,4096];
+            var ClosedSet = new List<Vector3>();
             var OpenSet = new List<Vector3>();
             OpenSet.Add(start);
 
-            var CameFrom = new List<Vector3>();
             Vector3 curNode = null;
             int cnt = 0;
             while (OpenSet.Count > 0 )
@@ -69,6 +76,7 @@ namespace uoNet
                 curNode = OpenSet.First();
                 OpenSet.RemoveAt(0);
 
+               // bmp.SetPixel(curNode.X, curNode.Y, Color.Red);
                 if (curNode.Equals(dest))
                     break;
                 var neighbours = GetNeighbours(curNode,dest);
@@ -80,21 +88,27 @@ namespace uoNet
                             OpenSet.Clear();
                             break;
                         }
-                    //!ClosedSet.Contains(n)
-                    if (!OpenSet.Contains(n) && closedSet[n.X,n.Y] == null && n.IsPassable())
+                    //  closedSet[n.X, n.Y] == null
+                    if (!ClosedSet.Contains(n) && !OpenSet.Contains(n) && n.IsPassable())
                     {
                         OpenSet.Add(n);
                     }
                 }
                 OpenSet.Sort();
-                closedSet[curNode.X, curNode.Y] = curNode;
-                // ClosedSet.Add(curNode);
+                //closedSet[curNode.X, curNode.Y] = curNode;
+                 ClosedSet.Add(curNode);
                 // if (ClosedSet.Count > 50000)
                 //    return null;
                 cnt++;
-                if (cnt > 50000)
+                //bmp.Save("test.png", ImageFormat.Png);
+                if (cnt > 10000)
+                {
+                   // bmp.Save("test.png", ImageFormat.Png);
                     return null;
+                }
+                    
             }
+           // bmp.Save("test.png", ImageFormat.Png);
 
             var resultPath = new List<Vector3>();
             //curnode is Start
@@ -123,7 +137,7 @@ namespace uoNet
                    // if (Math.Abs(x) == Math.Abs(y))
                     //    continue;
                     var heuristc = Tools.Get2DDistance(curNode.X + x, curNode.Y + y, dest.X, dest.Y);
-                        results.Add(new Vector3(curNode.X + x, curNode.Y + y) { V = heuristc + curNode.V, P = curNode});
+                        results.Add(new Vector3(curNode.X + x, curNode.Y + y) { V = heuristc + curNode.H,H = heuristc, P = curNode});
                 }
             }
             return results;

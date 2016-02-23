@@ -51,6 +51,9 @@ namespace uoNet
                 return (byte)GetInt("CharPosZ");
             }
         }
+
+       
+
         public int CharDir
         {
             get

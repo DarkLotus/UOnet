@@ -5,7 +5,7 @@ namespace uoNet
     public class Vector3 : IComparable
     {
         public int X, Y, Z;
-        public int V;
+        public int V,H;
         public Vector3 P;
 
         public Vector3(int x, int y, int z = 0)
@@ -38,8 +38,8 @@ namespace uoNet
                     }
 
                 }
-                if (land.Z > 25 && staticTile.Length == 0)
-                    return false;
+               // if (land.Z > 25 && staticTile.Length == 0)
+                //    return false;
             }
             return isPassable.Value;
           
