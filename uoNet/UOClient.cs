@@ -58,9 +58,20 @@ namespace uoNet
         }
        
 
-        private static List<Vector3> FindPath(UO t, Vector3 start, Vector3 dest,int accuracy = 0)
+        private static List<Vector3> FindPath(UO t, Vector3 start, Vector3 dest, int accuracy = 0)
         {
-           // Bitmap bmp = new Bitmap(6128, 4096);
+           /* Bitmap bmp = new Bitmap(6128, 4096);
+            for (int x = 2300; x < 2700; x++)
+            {
+                for (int y = 0; y < 600; y++)
+                {
+                    var tile = new Vector3(x, y);
+                    bmp.SetPixel(x, y, tile.IsPassable() ? Color.Green : Color.Red);
+                }
+            }
+            */
+
+
             //todo weight less for diagonal
             // check diagonal move allowed.
             //var closedSet = new Vector3[6128,4096];
@@ -75,13 +86,15 @@ namespace uoNet
 
                 curNode = OpenSet.First();
                 OpenSet.RemoveAt(0);
-
-               // bmp.SetPixel(curNode.X, curNode.Y, Color.Red);
+                ClosedSet.Add(curNode);
+               // bmp.SetPixel(curNode.X, curNode.Y, Color.Blue);
                 if (curNode.Equals(dest))
                     break;
                 var neighbours = GetNeighbours(curNode,dest);
                 foreach(var n in neighbours)
                 {
+                    if (!n.IsPassable())
+                        continue;
                     if (accuracy > 0)
                         if (n.Equals(dest))
                         {
@@ -89,6 +102,24 @@ namespace uoNet
                             break;
                         }
                     //  closedSet[n.X, n.Y] == null
+                    
+                    if (OpenSet.IndexOf(n) != -1)
+                    {
+                        var existing = OpenSet[OpenSet.IndexOf(n)];
+                        if(existing.V > n.V)
+                        {
+                            OpenSet.Remove(existing);
+                        }
+                    }
+                    if (ClosedSet.IndexOf(n) != -1)
+                    {
+                        var existing = ClosedSet[ClosedSet.IndexOf(n)];
+                        if (existing.V > n.V)
+                        {
+                            ClosedSet.Remove(existing);
+                        }
+                    }
+
                     if (!ClosedSet.Contains(n) && !OpenSet.Contains(n) && n.IsPassable())
                     {
                         OpenSet.Add(n);
@@ -96,7 +127,7 @@ namespace uoNet
                 }
                 OpenSet.Sort();
                 //closedSet[curNode.X, curNode.Y] = curNode;
-                 ClosedSet.Add(curNode);
+                 
                 // if (ClosedSet.Count > 50000)
                 //    return null;
                 cnt++;
@@ -108,17 +139,18 @@ namespace uoNet
                 }
                     
             }
-           // bmp.Save("test.png", ImageFormat.Png);
+            
 
             var resultPath = new List<Vector3>();
             //curnode is Start
             //Bitmap bmp = new Bitmap(4096, 4096);
             while (curNode != null)
             {
-                //bmp.SetPixel(curNode.X, curNode.Y, Color.Red);
+               // bmp.SetPixel(curNode.X, curNode.Y, Color.GhostWhite);
                 resultPath.Add(new Vector3(curNode.X, curNode.Y));
                 curNode = curNode.P;
             }
+           // bmp.Save("test.png", ImageFormat.Png);
             //bmp.Save("path.png", ImageFormat.Png);
             resultPath.Reverse();
             return resultPath;
@@ -134,13 +166,32 @@ namespace uoNet
                 {
                     if (x == 0 && y == 0)
                         continue;
-                   // if (Math.Abs(x) == Math.Abs(y))
-                    //    continue;
-                    var heuristc = Tools.Get2DDistance(curNode.X + x, curNode.Y + y, dest.X, dest.Y);
-                        results.Add(new Vector3(curNode.X + x, curNode.Y + y) { V = heuristc + curNode.H,H = heuristc, P = curNode});
+                     //if (Math.Abs(x) == Math.Abs(y))
+                     //   continue;
+                    //var heuristc = Tools.Get2DDistance(curNode.X + x, curNode.Y + y, dest.X, dest.Y);
+                    var h = diagonalDist(new Vector3(curNode.X + x, curNode.Y + y),dest) * 10;
+                    int g = 5;
+                    //if (Math.Abs(x) == Math.Abs(y))
+                    //    g = 5;
+                    var vec = new Vector3(curNode.X + x, curNode.Y + y)
+                    {
+                        //V = heuristc + curNode.H,
+                        G = curNode.G + g,
+                        H = (int)h,
+                        P = curNode
+                    };
+                    results.Add(vec);
                 }
             }
             return results;
+        }
+
+
+        private static double diagonalDist(Vector3 start, Vector3 dest)
+        {
+            int dx = Math.Abs(start.X - dest.X);
+            int dy = Math.Abs(start.Y - dest.Y);
+            return 1 * (dx + dy) + (Math.Sqrt(2) - 2 * 1) * Math.Min(dx, dy);
         }
     }
 }
