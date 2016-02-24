@@ -15,6 +15,10 @@ namespace uoNet
             Y = y;
             Z = z;
         }
+        public override string ToString()
+        {
+            return "X: " + X + " Y: " + Y;
+        }
 
         bool? isPassable = null;
         internal bool IsPassable()

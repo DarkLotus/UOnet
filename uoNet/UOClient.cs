@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace uoNet
 {
@@ -29,12 +30,12 @@ namespace uoNet
         public static bool SmartMove(this UO t, Vector3 v,int accuracy = 0)
         {
 
-           
+            Console.WriteLine("Move to :" + v + " requested");
             var path = FindPath(t, new Vector3(t.CharPosX, t.CharPosY), v,accuracy);
             if (path == null)
                 return false;
-
-            int timoutCnt = 3000;
+            Console.WriteLine("Path Found to: " + v);
+            int timoutCnt = 10000;
             var timer = System.Diagnostics.Stopwatch.StartNew();
             for(int i = 1; i < path.Count;i++)
             {
@@ -42,15 +43,17 @@ namespace uoNet
                     i = i + 3;
                 var p = path[i];
                 t.PathFind(p.X, p.Y, 0);//, 2000);
-                while (timer.ElapsedMilliseconds < timoutCnt && t.CharPosX != p.X && t.CharPosY != p.Y)
+                                        // Console.WriteLine("Moving to : " + p);
+                                        //while (timer.ElapsedMilliseconds < timoutCnt && t.CharPosX != p.X && t.CharPosY != p.Y)
+                while (timer.ElapsedMilliseconds < timoutCnt && (t.CharPosX != p.X || t.CharPosY != p.Y))
                 {
-                    System.Threading.Thread.Sleep(5);
+                    Thread.Sleep(50);
                     //t.PathFind(p.X, p.Y, 0);//, 2000);
                 }
-                    
+                //Console.WriteLine("Finished move @: X: " + t.CharPosX + " Y: " + t.CharPosY);
                 timer.Restart();
                 //t.Wait(5);
-                if (t.CharPosX != p.X && t.CharPosY != p.Y)
+                if (t.CharPosX != p.X || t.CharPosY != p.Y)
                     t.Move(p.X, p.Y, 0, 5000);
             }
             return true;
@@ -60,18 +63,18 @@ namespace uoNet
 
         private static List<Vector3> FindPath(UO t, Vector3 start, Vector3 dest, int accuracy = 0)
         {
-           /* Bitmap bmp = new Bitmap(6128, 4096);
-            for (int x = 2300; x < 2700; x++)
-            {
-                for (int y = 0; y < 600; y++)
-                {
-                    var tile = new Vector3(x, y);
-                    bmp.SetPixel(x, y, tile.IsPassable() ? Color.Green : Color.Red);
-                }
-            }
-            */
+            /* Bitmap bmp = new Bitmap(6128, 4096);
+             for (int x = 2300; x < 2700; x++)
+             {
+                 for (int y = 0; y < 600; y++)
+                 {
+                     var tile = new Vector3(x, y);
+                     bmp.SetPixel(x, y, tile.IsPassable() ? Color.Green : Color.Red);
+                 }
+             }
+             */
 
-
+            Bitmap bmp = new Bitmap(6128, 4096);
             //todo weight less for diagonal
             // check diagonal move allowed.
             //var closedSet = new Vector3[6128,4096];
@@ -87,14 +90,13 @@ namespace uoNet
                 curNode = OpenSet.First();
                 OpenSet.RemoveAt(0);
                 ClosedSet.Add(curNode);
-               // bmp.SetPixel(curNode.X, curNode.Y, Color.Blue);
+                bmp.SetPixel(curNode.X, curNode.Y, Color.Blue);
                 if (curNode.Equals(dest))
                     break;
                 var neighbours = GetNeighbours(curNode,dest);
                 foreach(var n in neighbours)
                 {
-                    if (!n.IsPassable())
-                        continue;
+
                     if (accuracy > 0)
                         if (n.Equals(dest))
                         {
@@ -102,7 +104,8 @@ namespace uoNet
                             break;
                         }
                     //  closedSet[n.X, n.Y] == null
-                    
+                    if (!n.IsPassable())
+                        continue;
                     if (OpenSet.IndexOf(n) != -1)
                     {
                         var existing = OpenSet[OpenSet.IndexOf(n)];
@@ -132,9 +135,9 @@ namespace uoNet
                 //    return null;
                 cnt++;
                 //bmp.Save("test.png", ImageFormat.Png);
-                if (cnt > 10000)
+                if (cnt > 2000)
                 {
-                   // bmp.Save("test.png", ImageFormat.Png);
+                    bmp.Save("test.png", ImageFormat.Png);
                     return null;
                 }
                     
