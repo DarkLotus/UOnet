@@ -165,6 +165,23 @@ namespace uoNet
             return items;
         }
 
+        public List<FoundItem> FindItem()
+        {
+            int itemcnt = ScanItems(true);
+            List<FoundItem> items = new List<FoundItem>();
+            for (int i = 0; i < itemcnt; i++)
+            {
+                FoundItem item = GetItem(i);
+                if (item != null)
+                {
+                        items.Add(item);
+                }
+
+            }
+
+            return items;
+        }
+
 
         public void UseSkill(Skill Skill)
         {

@@ -23,22 +23,41 @@ namespace uoNet
              }
              bmp.Save("testsm.png", ImageFormat.Png);
              var vv = new Vector3(2475, 431).IsPassable();*/
-            var path = FindPath(t, vector31, vector32,0);
+            var path = FindPath(t, vector31, vector32,1);
             return null;
         }
 
         public static bool SmartMove(this UO t, Vector3 v,int accuracy = 0)
         {
 
-            Console.WriteLine("Move to :" + v + " requested");
+            //Console.WriteLine("Move to :" + v + " requested");
             var path = FindPath(t, new Vector3(t.CharPosX, t.CharPosY), v,accuracy);
             if (path == null)
                 return false;
-            Console.WriteLine("Path Found to: " + v);
+            //Console.WriteLine("Path Found to: " + v);
             int timoutCnt = 10000;
             var timer = System.Diagnostics.Stopwatch.StartNew();
             for(int i = 1; i < path.Count;i++)
             {
+                //get all visible items
+                var items = t.FindItem();
+                // Check next 5 tiles for items
+                for (int o = i; o < path.Count && o < i + 5;o++)
+                {
+                    var itemsOnLoc = items.Where(item => item.X == path[o].X && item.Y == path[o].Y);
+                    foreach(var item in items)
+                    {
+                        if (Ultima.TileData.ItemTable[item.Kind].Impassable)
+                        {
+                            Vector3.impassables.Add(new Vector3(path[o].X, path[o].Y));
+                            Console.WriteLine("Dynamic object detected, adding to impassable and repathing");
+                            return t.SmartMove(v,accuracy);
+                        }
+                            
+                    }
+                    
+                }
+
                 if (i + 3 < path.Count -1)
                     i = i + 3;
                 var p = path[i];
@@ -59,22 +78,22 @@ namespace uoNet
             return true;
 
         }
-       
+
 
         private static List<Vector3> FindPath(UO t, Vector3 start, Vector3 dest, int accuracy = 0)
         {
-            /* Bitmap bmp = new Bitmap(6128, 4096);
-             for (int x = 2300; x < 2700; x++)
+             /*Bitmap bmp = new Bitmap(6128, 4096);
+             for (int x = 1000; x < 1750; x++)
              {
-                 for (int y = 0; y < 600; y++)
+                 for (int y = 1555; y < 2444; y++)
                  {
                      var tile = new Vector3(x, y);
                      bmp.SetPixel(x, y, tile.IsPassable() ? Color.Green : Color.Red);
                  }
-             }
-             */
+             }*/
+             
 
-            Bitmap bmp = new Bitmap(6128, 4096);
+            //Bitmap bmp = new Bitmap(6128, 4096);
             //todo weight less for diagonal
             // check diagonal move allowed.
             //var closedSet = new Vector3[6128,4096];
@@ -90,7 +109,7 @@ namespace uoNet
                 curNode = OpenSet.First();
                 OpenSet.RemoveAt(0);
                 ClosedSet.Add(curNode);
-                bmp.SetPixel(curNode.X, curNode.Y, Color.Blue);
+              //  bmp.SetPixel(curNode.X, curNode.Y, Color.Blue);
                 if (curNode.Equals(dest))
                     break;
                 var neighbours = GetNeighbours(curNode,dest);
@@ -134,10 +153,12 @@ namespace uoNet
                 // if (ClosedSet.Count > 50000)
                 //    return null;
                 cnt++;
+                //if (OpenSet.Count > 1000)
+                //    OpenSet.RemoveRange(500, 1000);
                 //bmp.Save("test.png", ImageFormat.Png);
-                if (cnt > 2000)
+                if (cnt > 15000)
                 {
-                    bmp.Save("test.png", ImageFormat.Png);
+                //    bmp.Save("test.png", ImageFormat.Png);
                     return null;
                 }
                     
@@ -149,7 +170,7 @@ namespace uoNet
             //Bitmap bmp = new Bitmap(4096, 4096);
             while (curNode != null)
             {
-               // bmp.SetPixel(curNode.X, curNode.Y, Color.GhostWhite);
+              //  bmp.SetPixel(curNode.X, curNode.Y, Color.GhostWhite);
                 resultPath.Add(new Vector3(curNode.X, curNode.Y));
                 curNode = curNode.P;
             }
@@ -169,20 +190,19 @@ namespace uoNet
                 {
                     if (x == 0 && y == 0)
                         continue;
-                     //if (Math.Abs(x) == Math.Abs(y))
-                     //   continue;
+                    //if (Math.Abs(x) == Math.Abs(y))
+                    //   continue;
                     //var heuristc = Tools.Get2DDistance(curNode.X + x, curNode.Y + y, dest.X, dest.Y);
-                    var h = diagonalDist(new Vector3(curNode.X + x, curNode.Y + y),dest) * 10;
+                    var vec = new Vector3(curNode.X + x, curNode.Y + y) { P = curNode };
+
+                    var h = diagonalDist(vec,dest) * 10;
                     int g = 5;
+                    g = vec.ModifyG(g);
                     //if (Math.Abs(x) == Math.Abs(y))
                     //    g = 5;
-                    var vec = new Vector3(curNode.X + x, curNode.Y + y)
-                    {
-                        //V = heuristc + curNode.H,
-                        G = curNode.G + g,
-                        H = (int)h,
-                        P = curNode
-                    };
+                    vec.G = curNode.G + g;
+                    vec.H = (int)h;
+
                     results.Add(vec);
                 }
             }

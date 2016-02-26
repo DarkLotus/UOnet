@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace uoNet
 {
@@ -21,8 +22,15 @@ namespace uoNet
         }
 
         bool? isPassable = null;
+        public static List<Vector3> impassables = new List<Vector3>();
         internal bool IsPassable()
         {
+            if(impassables.Contains(this))
+            {
+                Console.WriteLine("Tried Impassable loc" + X + "/" + Y);
+                return false;
+            }
+                
             if(!isPassable.HasValue)
             {
                 isPassable = true;
@@ -68,6 +76,23 @@ namespace uoNet
             if (other.V < V)
                 return 1;
             return 0;
+        }
+
+        internal int ModifyG(int g)
+        {
+            for(int x = -2; x <= 2; x += 4)
+            {
+                for (int y = -2; y <= 2; y += 4)
+                {
+                    //var land = Ultima.Map.Felucca.Tiles.GetLandTile(X+x, Y+y);
+                    var staticTile = Ultima.Map.Felucca.Tiles.GetStaticTiles(X + x, Y + y);
+                    if(staticTile.Length > 0)
+                    if (Ultima.TileData.ItemTable[staticTile[0].ID].Flags.HasFlag(Ultima.TileFlag.Wet))
+                        return g + 7;
+                }
+            }
+
+            return g;
         }
     }
 }
