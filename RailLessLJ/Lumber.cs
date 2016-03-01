@@ -19,8 +19,8 @@ namespace RailLessLJ
         private string _bankStoneID = "JCUSJMD";
         private string _bankChestID = "DCUXJMD";
         private string BankGumpKind = "UCHB";
-
-        public Lumber(UO uO, string bankStoneID, string bankChestID, Rectangle bounds, Vector3 home, Vector3 forest)
+        private string _ressStoneID = "";
+        public Lumber(UO uO, string bankStoneID, string bankChestID, Rectangle bounds, Vector3 home, Vector3 forest, string ressStone = "OLUSJMD")
         {
             this.UOD = uO;
             _curBounding = bounds;
@@ -28,7 +28,9 @@ namespace RailLessLJ
             _bankStoneID = bankStoneID;
             _home = home;
             _forest = forest;
+            _ressStoneID = ressStone;
             //_curBounding = ;
+            Vector3.impassables.Add(new Vector3(3588, 2407));
         }
 
         internal void Loop()
@@ -37,7 +39,7 @@ namespace RailLessLJ
             {
                 Logger.I("Moving to Forest");
                 UOD.SmartMove(_forest, 1);
-
+                Logger.I("Chopping");
                 LumberLoop();
                 Logger.I("Moving to Bank");
                 UOD.SmartMove(_home);
@@ -55,7 +57,7 @@ namespace RailLessLJ
 
             var tool = UOD.FindItem(Items.Hatchet).Where(p => p.ContID == UOD.BackpackID);
             UOD.Move(_home.X, _home.Y, 0, 5000);
-            if (UOD.CharGhost)
+            if (UOD.CharType != 400)
                 Ress();
             UOD.UseObject(_bankStoneID);
             Thread.Sleep(5000);
@@ -90,7 +92,7 @@ namespace RailLessLJ
                 UOD.UseObject(tinker);
                 Thread.Sleep(6000);
                 i = UOD.FindItem(Items.Hatchet).Where(p => p.ContID == UOD.BackpackID).Count();
-                if (UOD.CharGhost)
+                if (UOD.CharType != 400)
                 {
                     Logger.I("Ress Triggered From Craft!");
                     return true;
@@ -104,7 +106,7 @@ namespace RailLessLJ
         }
         private void Ress()
         {
-            if (!UOD.CharGhost)
+            if (UOD.CharType == 400)
                 return;
             Logger.I("Attempting to Ress");
            /* UOD.Msg("home home home");
@@ -116,7 +118,7 @@ namespace RailLessLJ
                 Logger.I("Failed to get to NZ");
                 Ress();
             }*/
-            UOD.UseObject("OLUSJMD");
+            UOD.UseObject(_ressStoneID);
             Thread.Sleep(5000);
             UOD.Click(72, 99, true, true, false, false);
             Thread.Sleep(100);
@@ -175,8 +177,10 @@ namespace RailLessLJ
         {
             //Logger.I("Chopping Location: " + tile.x + " / " + tile.y);
             var next = false;
-            while(!next)
+            int cnt = 0;
+            while(!next && cnt < 25)
             {
+                cnt++;
                 var axe = UOD.FindItem(Items.Hatchet).FirstOrDefault();
                 if (!CheckWhileLJ())
                     return false;
@@ -215,7 +219,7 @@ namespace RailLessLJ
             var axe = UOD.FindItem(Items.Hatchet).FirstOrDefault();
             if(axe == null)
                 return false;
-            var logs = UOD.FindItem(Items.Logs).FirstOrDefault();
+            var logs = UOD.FindItem(Items.Logs).Where(c => c.ContID == UOD.BackpackID).FirstOrDefault();
             if (logs != null && logs.Stack > 150)
                 return false;
             return true;
@@ -237,10 +241,12 @@ namespace RailLessLJ
                     case 3: --y; if (-y == layer) { leg = 0; ++layer; } break;
                 }
                 var tilex = x + UOD.CharPosX; var tiley = y + UOD.CharPosY;
+                if (tilex == 3496 && tiley == 2733)
+                    continue;
+                if (Math.Abs(x) > 300 || Math.Abs(y) > 300)
+                    break;
                 if (!_curBounding.Contains(tilex, tiley))
                     continue;
-                if (Math.Abs(x) > 200 || Math.Abs(y) > 200)
-                    break;
                 for (int z = 0; z <= UOD.TileCnt(tilex, tiley,0); z++)
                 {
                     tile = UOD.TileGet(tilex, tiley, z, 0);

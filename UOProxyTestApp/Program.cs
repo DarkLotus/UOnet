@@ -13,11 +13,12 @@ namespace UOProxyTestApp
             UOProxy.UOProxy proxy = new UOProxy.UOProxy();
             proxy.StartListeningForClient(2593);
             //proxy.EventUpdatePlayer += new UOProxy.UOProxy.UpdatePlayerEventHandler(proxy_EventUpdatePlayer);
-            proxy._0x1AObjectInfo +=new UOProxy.UOProxy.ObjectInfoEventHandler(proxy_EventObjectInfo);
-            proxy._0x8CConnectToGameServer += new UOProxy.UOProxy.ConnectToGameServerEventHandler(proxy__0x8CConnectToGameServer);
+           // proxy._0x1AObjectInfo +=new UOProxy.UOProxy.ObjectInfoEventHandler(proxy_EventObjectInfo);
+           // proxy._0x8CConnectToGameServer += new UOProxy.UOProxy.ConnectToGameServerEventHandler(proxy__0x8CConnectToGameServer);
             proxy._0xB0SendGumpMenuDialog += new UOProxy.UOProxy.SendGumpMenuDialogEventHandler(proxy__0xB0SendGumpMenuDialog);
-            proxy._0x77UpdatePlayer += new UOProxy.UOProxy.UpdatePlayerEventHandler(proxy__0x77UpdatePlayer);
+           // proxy._0x77UpdatePlayer += new UOProxy.UOProxy.UpdatePlayerEventHandler(proxy__0x77UpdatePlayer);
             proxy._0xB1GumpMenuSelection += new UOProxy.UOProxy.GumpMenuSelectionEventHandler(proxy__0xB1GumpMenuSelection);
+            proxy._0x03TalkRequest += Proxy__0x03TalkRequest;
             while (true)
             {
                 Thread.Sleep(5);
@@ -34,6 +35,11 @@ namespace UOProxyTestApp
 
                 }
             }
+        }
+
+        private static void Proxy__0x03TalkRequest(UOProxy.Packets.FromClient._0x03TalkRequest e)
+        {
+            throw new NotImplementedException();
         }
 
         static void proxy__0xB1GumpMenuSelection(UOProxy.Packets.FromClient._0xB1GumpMenuSelection e)

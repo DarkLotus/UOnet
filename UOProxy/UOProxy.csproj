@@ -49,7 +49,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="Packets\FromClient\0x03TalkRequest.cs" />
+    <Compile Include="UOProxy.cs" />
     <Compile Include="HandleClientPacket.cs" />
     <Compile Include="HandleServerPackets.cs" />
     <Compile Include="Helpers\Cliloc.cs" />

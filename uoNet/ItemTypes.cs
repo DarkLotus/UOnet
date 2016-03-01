@@ -20,5 +20,8 @@ namespace uoNet
         public static readonly string[] MiningBankables = { "RMK", "TMK", "XMK", "NMK", "DWJ", "TVJ", "GWJ", "EWJ" };
         public static string Hatchet = "FSF";
         public static string Logs = "ZLK";
+        public static string BlackPearl = "KUF";
+        public static string MandrakeRoot = "MZF";
+        public static string BloodMoss = "JUF";
     }
 }

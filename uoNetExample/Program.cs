@@ -28,151 +28,67 @@ namespace uoNetExample
     {
         public static uoNet.UO UO = new uoNet.UO();
 
-        static String miningtool = "NPF";
-        static String bankStone = "YBUSJMD";
-        static Tuple<int, int>[] Locs = { new Tuple<int, int>(2464, 135), };
-
-
-
-
-        /*  static Tuple<int, int>[] MinocTown = { new Tuple<int, int>(2488, 487),
-          new Tuple<int, int>(2500, 487),
-          new Tuple<int, int>(2511, 487),
-          new Tuple<int, int>(2523, 491),
-          new Tuple<int, int>(2526, 500),
-          new Tuple<int, int>(2536, 500),
-          new Tuple<int, int>(2552, 502),
-          new Tuple<int, int>(2558, 502),
-          new Tuple<int, int>(2557, 497),
-          new Tuple<int, int>(2559, 492),
-          new Tuple<int, int>(2560, 488),
-          new Tuple<int, int>(2563, 484),
-          new Tuple<int, int>(2565, 481),
-          new Tuple<int, int>(2568, 476),
-          new Tuple<int, int>(2573, 476),
-          new Tuple<int, int>(2576, 477),
-          new Tuple<int, int>(2579, 480),
-          new Tuple<int, int>(2576, 483),
-          new Tuple<int, int>(2573, 480),
-          new Tuple<int, int>(2571, 484),
-          new Tuple<int, int>(2570, 487),
-          new Tuple<int, int>(2566, 488),
-
-          };*/
-        static int[] tileTypes = { 1339, 1340, 1341, 1342, 1343 };
-
-        static List<Tile> minedTiles = new List<Tile>();
+        
 
         static void Main(string[] args)
         {
             if (!UO.Open()) { Console.WriteLine("UO.dll Unable to Connect to Game"); return; } // Attempts to open UO.DLL and connect to client.
             Console.WriteLine("uoNet Activated, Connected with CharName: " + UO.CharName); // All client variables can be accessed in this manner UO.VarName
 
-            var script = new RailMiner(UO);
+
+            
+
+             var p = UO.FindPath(new Vector3(1151, 2243), new Vector3(1364, 1757));
+            return;
+            //   var pp = UO.FindPath(new Vector3(4436, 1471), new Vector3(4490, 1232));
+            // var script = new RailMiner(UO);
+            int cnt = 0;
             while (true)
             {
-                script.Loop();
-                return;
-                int i;
+                // script.Loop();
+                var tile = Tile(50,50);
+                if (tile == null)
+                    break;
+                cnt++;
 
-                for(i = 0; i < 22;i++)
-                {
-                   // UO.PathFind(Locs[i].Item1, Locs[i].Item2, UO.CharPosZ);
-                   // UO.Move(Locs[i].Item1, Locs[i].Item2, 0, 5000);
-                    CheckStatus();
-                    MineLocationLoop();
-                }
-
-
-                //back track
-                for(; i > 0; i--)
-                {
-                    UO.PathFind(Locs[i].Item1, Locs[i].Item2, UO.CharPosZ);
-                    UO.Move(Locs[i].Item1, Locs[i].Item2, 0, 5000);
-                }
              
             }
-
+            Console.WriteLine(minedTiles.Count);
 
         }
+        static int[] tileTypes = { 1339, 1340, 1341, 1342, 1343 };
 
-        private static void MineLocationLoop()
+        static List<Tile> minedTiles = new List<Tile>();
+
+        private static Tile Tile(int xrange, int yrange)
         {
-            minedTiles.Clear();
-            UO.InJournal("test");
-            UO.ClearJournal();
-            var tile = Tile();
-            while (tile != null)
-            {
-                UO.LTargetX = tile.x;
-                UO.LTargetY = tile.y;
-                UO.LTargetZ = tile.Z;
-                UO.LTargetTile = tile.Type;
-                UO.LTargetKind = 3;
-
-                
-                CheckStatus();
-                var tool = UO.FindItem(uoNet.Tools.EUOToInt(miningtool)).First();
-                if(tool == null)
-                {
-                    CraftTool();
-                    continue;
-                }
-                UO.LObjectID = tool.ID;
-                UO.EventMacro(17, 0);
-                UO.Target(5000);
-                UO.ClearJournal();
-                UO.EventMacro(22, 0);
-                UO.Wait(5);
-                for (int i = 0; i < 10; i++)
-                {
-                    if (UO.InJournal(new string[] {"you loosen some","you put" }) != null)
-                        break;
-                    if (UO.InJournal(new string[] {"nothing here","far away","immune","line of","try mining","cannot mine","that is too" }) != null)
-                    {
-                        tile = Tile();
-                        break;
-                    }
-                    UO.Wait(5);
-                }
-                //replace with journal scan
-
-            }
-
-
-        }
-
-        private static void CraftTool()
-        {
-            //var tool = UO.FindItem(uoNet.Tools.EUOToInt(tinkertool)).First();
-        }
-
-        private static Tile Tile()
-        {  
             UO.TileInit(false);
-            for(int x = -2; x <= 2; x++)
+            for (int y = -yrange; y <= yrange; y++)
             {
-                for (int y = -2; y <= 2; y++)
+                for (int x = -xrange; x <= xrange; x++)
                 {
+                    var charx = UO.CharPosX + x;
+                    var chary = UO.CharPosY + y;
+
                     for (int z = 0; z <= 3; z++)
                     {
-                        var charx = UO.CharPosX + x;
-                        var tile = UO.TileGet(charx, UO.CharPosY + y, z, 0);
+                        //var land = Ultima.Map.Felucca.Tiles.GetLandTile(charx, chary);
+                        //var staticTile = Ultima.Map.Felucca.Tiles.GetStaticTiles(charx, chary);
+                        var tile = UO.TileGet(charx, chary, z, 0);
                         if (tileTypes.Contains(tile.Type) && !minedTiles.Contains(tile))
                         {
                             minedTiles.Add(tile);
-                            return tile;
+                            //return tile;
                         }
 
                     }
                 }
             }
+            //if (xrange < 100)
+            //    return Tile(++xrange, ++yrange);
             return null;
         }
 
-        private static void CheckStatus()
-        {
-            
-        }
+
     }
 }

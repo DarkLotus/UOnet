@@ -39,7 +39,7 @@ namespace RailLessMiner
         Rectangle _curBounding = new Rectangle();
         List<List<Vector3>> _MinePaths = new List<List<Vector3>>() {
                         new List<Vector3> { new Vector3(2464,135),
-                                new Vector3(2464,161),
+                                new Vector3(2455,167),
                                 new Vector3(2430,177),
                                 },
                         //Mine B
@@ -50,8 +50,8 @@ namespace RailLessMiner
 
                         //Mine C
                         new List<Vector3> { new Vector3(2464,135),
-                                new Vector3(2464,94),
-                                new Vector3(2472,71),
+                                new Vector3(2463,82),
+                                new Vector3(2472,69),
                         }
         } ;
 
@@ -70,7 +70,7 @@ namespace RailLessMiner
         {
             _timer = System.Diagnostics.Stopwatch.StartNew();
 
-            UOD.SmartMove(new Vector3(2464, 135));
+             UOD.SmartMove(new Vector3(2464, 135));
             //UOD.SmartMove(new Vector3(1628, 1600), 1);
             //UOD.SmartMove(new Vector3(2490, 419),1);
             if (!CheckHome(-1))
@@ -90,7 +90,7 @@ namespace RailLessMiner
                         _curBounding = _boundingBoxMines[i];
                         if (Tools.Get2DDistance(UOD.CharPosX, UOD.CharPosY, _currentForgeLoc.X, _currentForgeLoc.Y) > 20)
                             rail.ForEach(m => UOD.SmartMove(m));
-                        MineLoop();
+                       MineLoop();
 
                         rail.Reverse();
                         rail.ForEach(m => UOD.SmartMove(m));
@@ -189,10 +189,11 @@ namespace RailLessMiner
 
         private bool CheckHome(int mineNum)
         {
-            if (UOD.CharGhost)
+            if (UOD.CharType !=400)
             {
                 Ress();
             }
+            UOD.SmartMove(_MinePaths[0][0]);
             UOD.Move(_MinePaths[0][0].X, _MinePaths[0][0].Y, 0, 5000);
             Bank(mineNum);
 
@@ -202,13 +203,14 @@ namespace RailLessMiner
                 while(UOD.ContID != Tools.EUOToInt(_chestID))
                 {
                     UOD.UseObject(_chestID);
-                    Thread.Sleep(500);
-                    if (UOD.CharGhost)
+                    Thread.Sleep(1500);
+                    if (UOD.CharType != 400)
                     {
                         Logger.I("Killed while crafting");
                         Ress();  
                         return CheckHome(mineNum);
-                    }        
+                    }
+                    return CheckHome(mineNum);
                 }
                 if (!CraftTool(3))
                     return false;
@@ -219,7 +221,7 @@ namespace RailLessMiner
         private void Ress()
         {
             Thread.Sleep(5000);
-            if (!UOD.CharGhost)
+            if (UOD.CharType == 400)
                 return;
             Logger.I("Attempting to Ress");
             UOD.Msg("home home home");
@@ -239,7 +241,7 @@ namespace RailLessMiner
             Thread.Sleep(100);
             UOD.Click(72, 99, true, false, true, false);
             Thread.Sleep(5000);
-            if (UOD.CharGhost)
+            if (UOD.CharType != 400)
                 Ress();
 
             UOD.UseObject(UOD.BackpackID);
@@ -281,7 +283,7 @@ namespace RailLessMiner
                 if(!goingHome)
                     UOD.SmartMove(new Vector3(curx, cury));
             }
-            if (UOD.CharGhost)
+            if (UOD.CharType != 400)
             {
                 Logger.I("Killed in MiningLoop");
                 return false;
@@ -312,7 +314,7 @@ namespace RailLessMiner
                 if (UOD.InJournal("make anything"))
                     break;
                 i = UOD.FindItem(Items.PickAxe).Where(p => p.ContID == UOD.BackpackID).Count();
-                if (UOD.CharGhost)
+                if (UOD.CharType != 400)
                 {
                     Logger.I("Ress Triggered From Craft!");
                     return true;

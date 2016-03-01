@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using Ultima;
 
 namespace uoNet
 {
@@ -117,7 +118,8 @@ namespace uoNet
             {
                 if (type.Length == 3)
                     results.AddRange(FindItem(uoNet.Tools.EUOToUshort(type), VisibleOnly, containerID));
-                results.AddRange(FindItem(uoNet.Tools.EUOToInt(type)));
+                else
+                    results.AddRange(FindItem(uoNet.Tools.EUOToInt(type)));
             }
             return results;
         }
@@ -210,7 +212,7 @@ namespace uoNet
             Drag(Item, amount);
             Thread.Sleep(750);
             DropC(Target);
-            Thread.Sleep(750);
+            Thread.Sleep(1250);
         }
 
         public void DropC(string ContID, int X, int Y)
@@ -486,6 +488,12 @@ namespace uoNet
         {
             this.x = x;
             this.y = y;
+        }
+
+        public Tile(Ultima.Tile land)
+        {
+            this.Type = land.ID;
+            this.Z = land.Z;
         }
 
         public override bool Equals(object obj)

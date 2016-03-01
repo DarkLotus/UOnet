@@ -82,13 +82,6 @@ namespace uoNet
                 return GetString("CharStatus");
             }
         }
-        public bool CharGhost
-        {
-            get
-            {
-                return GetBoolean("CharGhost");
-            }
-        }
 
         public int BackpackID
         {
