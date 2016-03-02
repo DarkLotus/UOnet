@@ -22,10 +22,14 @@ namespace RailLessLJ
             Lumber script;
             //UO.SmartMove(new Vector3(550, 1009));
             if (UO.CharName.Equals("Gregor"))
-                script = new Lumber(UO, "HCUSJMD", "QBNFKMD", new Rectangle(420, 850, 200, 200), new Vector3(541, 993), new Vector3(550, 952));
+                script = new Lumber(UO, "HCUSJMD", "QBNFKMD", new Rectangle(420, 850, 200, 200), new Vector3(541, 993), new Vector3(550, 952), "ELUSJMD");
             // moonglow gregor script = new Lumber(UO, "JCUSJMD", "QBNFKMD", new Rectangle(4384, 1132, 175, 140), new Vector3(4445, 1154), new Vector3(4441, 1184));
             else if (UO.CharName.Equals("Ansem"))
                 script = new Lumber(UO, "HCUSJMD", "OZQFKMD", new Rectangle(493, 975, 225, 225), new Vector3(541, 993), new Vector3(553, 1018), "ELUSJMD");
+            else if (UO.CharName.Equals("Maximoose"))
+                script = new Lumber(UO, null, "KTNEKMD", new Rectangle(1760, 1237, 225, 225), new Vector3(1720, 1314), new Vector3(1770, 1329));
+            else if (UO.CharName.Equals("Scully"))
+                script = new Lumber(UO, null, "KTNEKMD", new Rectangle(1560, 1237, 225, 225), new Vector3(1720, 1314), new Vector3(1711, 1327));
             else
                 script = new Lumber(UO, "FCUSJMD", "DCUXJMD", new Rectangle(3322, 2344, 400, 400), new Vector3(3682,2526), new Vector3(3682, 2526));
             //var script = new Lumber(UO);

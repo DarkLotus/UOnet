@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
@@ -20,8 +21,11 @@ namespace RailLessLJ
         private string _bankChestID = "DCUXJMD";
         private string BankGumpKind = "UCHB";
         private string _ressStoneID = "";
+        private Stopwatch _timer;
+
         public Lumber(UO uO, string bankStoneID, string bankChestID, Rectangle bounds, Vector3 home, Vector3 forest, string ressStone = "OLUSJMD")
         {
+            _timer = System.Diagnostics.Stopwatch.StartNew();
             this.UOD = uO;
             _curBounding = bounds;
             _bankChestID = bankChestID;
@@ -57,14 +61,24 @@ namespace RailLessLJ
 
             var tool = UOD.FindItem(Items.Hatchet).Where(p => p.ContID == UOD.BackpackID);
             UOD.Move(_home.X, _home.Y, 0, 5000);
-            if (UOD.CharType != 400)
+            if (UOD.CharType != 400 && UOD.CharType != 401)
                 Ress();
-            UOD.UseObject(_bankStoneID);
-            Thread.Sleep(5000);
-            UOD.Click(250, 116, true, true, false, false);
-            Thread.Sleep(100);
-            UOD.Click(250, 116, true, false,true, false);
-            Thread.Sleep(5000);
+            if (_bankStoneID == null)
+            {
+                UOD.UseObject(_bankChestID);
+                Thread.Sleep(5000);
+            }
+                
+            else
+            {
+                UOD.UseObject(_bankStoneID);
+                Thread.Sleep(5000);
+                UOD.Click(250, 116, true, true, false, false);
+                Thread.Sleep(100);
+                UOD.Click(250, 116, true, false, true, false);
+                Thread.Sleep(5000);
+            }
+                
             Bank();
             if (tool == null || tool.Count() < 3)
             {
@@ -77,6 +91,7 @@ namespace RailLessLJ
 
         private bool CraftTool(int cnt)
         {
+            Logger.I("Crafting Tools");
             var tinker = UOD.FindItem(Items.Tinker_Tool).FirstOrDefault();
             if (tinker == null)
             {
@@ -88,11 +103,16 @@ namespace RailLessLJ
             UOD.DragDropC(iron.ID, 50, UOD.BackpackID);
             for (int i = 0; i < cnt;)
             {
+                if(UOD.FindItem(Items.Ingots).Where(iz => iz.Col == 0 && iz.ContID == UOD.BackpackID).FirstOrDefault() == null || UOD.FindItem(Items.Tinker_Tool).FirstOrDefault() == null)
+                {
+                    Logger.I("Failed to craft");
+                    return false;
+                }
                 UOD.Msg("_waitmenu 'Tinkering' 'Tools' 'Tools' 'hatchet'");
                 UOD.UseObject(tinker);
                 Thread.Sleep(6000);
                 i = UOD.FindItem(Items.Hatchet).Where(p => p.ContID == UOD.BackpackID).Count();
-                if (UOD.CharType != 400)
+                if (UOD.CharType != 400 && UOD.CharType != 401)
                 {
                     Logger.I("Ress Triggered From Craft!");
                     return true;
@@ -100,24 +120,29 @@ namespace RailLessLJ
             }
 
             iron = UOD.FindItem(Items.Ingots).Where(i => i.Col == 0 && i.ContID == UOD.BackpackID).FirstOrDefault();
-            UOD.DragDropC(iron.ID, 50, Tools.EUOToInt(_bankChestID));
+            UOD.DragDropC(iron.ID, iron.Stack, Tools.EUOToInt(_bankChestID));
+            Thread.Sleep(500);
             UOD.DragDropC(tinker.ID, 1, Tools.EUOToInt(_bankChestID));
+            Thread.Sleep(500);
+            Logger.I("Finished Crafting");
             return true;
         }
         private void Ress()
         {
-            if (UOD.CharType == 400)
+            if (UOD.CharType == 400 && UOD.CharType != 401)
                 return;
             Logger.I("Attempting to Ress");
-           /* UOD.Msg("home home home");
-            Thread.Sleep(10000);
-            UOD.Move(5182, 1249, 0, 10000);
-            UOD.Move(5182, 1224, 0, 20000);
-            if (UOD.CharPosX != 5182 || UOD.CharPosY != 1224)
-            {
-                Logger.I("Failed to get to NZ");
-                Ress();
-            }*/
+            UOD.SmartMove(_home);
+            Thread.Sleep(30000);
+            /* UOD.Msg("home home home");
+             Thread.Sleep(10000);
+             UOD.Move(5182, 1249, 0, 10000);
+             UOD.Move(5182, 1224, 0, 20000);
+             if (UOD.CharPosX != 5182 || UOD.CharPosY != 1224)
+             {
+                 Logger.I("Failed to get to NZ");
+                 Ress();
+             }*/
             UOD.UseObject(_ressStoneID);
             Thread.Sleep(5000);
             UOD.Click(72, 99, true, true, false, false);
@@ -150,10 +175,14 @@ namespace RailLessLJ
                 }
             });
             Logger.I("Banked " + counter + " logs this run");
-            Logger.I("Totals for this session");
+            Logger.I("Totals for this session: " + _timer.Elapsed.ToString());
+            //var hours = _timer.ElapsedMilliseconds / 1000 / 60/60;
             foreach (var kv in _runningTally)
             {
-                Logger.I("Color: " + kv.Key + " Amount: " + kv.Value);
+                var ph = 0L;
+                //if (kv.Value > 0)
+                //ph = (kv.Value / hours);
+                Logger.I("Color: " + kv.Key + " Amount: " + kv.Value + "P/H: " + ph);
             }
         }
 
