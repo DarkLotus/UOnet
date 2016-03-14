@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>VSEmbed.Roslyn</name>
+    </assembly>
+    <members>
+        <member name="T:VSEmbed.Roslyn.EditorWorkspace">
+            <summary>A Roslyn Workspace that contains documents linked to <see cref="T:Microsoft.VisualStudio.Text.ITextBuffer"/>s.</summary>
+        </member>
+        <member name="M:VSEmbed.Roslyn.EditorWorkspace.#ctor(Microsoft.CodeAnalysis.Host.HostServices)">
+            <summary>Creates an <see cref="T:VSEmbed.Roslyn.EditorWorkspace"/> powered by the specified MEF host services.</summary>
+        </member>
+        <member name="M:VSEmbed.Roslyn.EditorWorkspace.GetInternalService(System.Type)">
+            <summary>Gets a non-public <see cref="T:Microsoft.CodeAnalysis.Host.IWorkspaceService"/> from this instance.</summary>
+        </member>
+        <member name="P:VSEmbed.Roslyn.EditorWorkspace.ActiveDocumentId">
+            <summary>Gets or sets the document that the user is editing.  Set this property to speed up semantic processing (live error checking).</summary>
+        </member>
+        <member name="M:VSEmbed.Roslyn.EditorWorkspace.CreateFrameworkReference(System.String)">
+            <summary>Creates a <see cref="T:Microsoft.CodeAnalysis.MetadataReference"/> to a BCL assembly, with XML documentation.</summary>
+        </member>
+        <member name="M:VSEmbed.Roslyn.EditorWorkspace.CreateDocument(Microsoft.CodeAnalysis.ProjectId,Microsoft.VisualStudio.Text.ITextBuffer,System.String)">
+            <summary>Creates a new document linked to an existing text buffer.</summary>
+        </member>
+        <member name="M:VSEmbed.Roslyn.EditorWorkspace.OpenDocument(Microsoft.CodeAnalysis.DocumentId,Microsoft.VisualStudio.Text.ITextBuffer)">
+            <summary>Links an existing <see cref="T:Microsoft.CodeAnalysis.Document"/> to an <see cref="T:Microsoft.VisualStudio.Text.ITextBuffer"/>, synchronizing their contents.</summary>
+        </member>
+        <member name="M:VSEmbed.Roslyn.EditorWorkspace.CloseDocument(Microsoft.CodeAnalysis.DocumentId)">
+            <summary>Unlinks an opened <see cref="T:Microsoft.CodeAnalysis.Document"/> from its <see cref="T:Microsoft.VisualStudio.Text.ITextBuffer"/>.</summary>
+        </member>
+        <member name="M:VSEmbed.Roslyn.EditorWorkspace.ApplyDocumentTextChanged(Microsoft.CodeAnalysis.DocumentId,Microsoft.CodeAnalysis.Text.SourceText)">
+            <summary>Applies document text changes to documents backed by <see cref="T:Microsoft.VisualStudio.Text.ITextBuffer"/>s.</summary>
+        </member>
+        <member name="M:VSEmbed.Roslyn.EditorWorkspace.CanApplyChange(Microsoft.CodeAnalysis.ApplyChangesKind)">
+            <summary><see cref="T:VSEmbed.Roslyn.EditorWorkspace"/> can apply any kind of change.</summary>
+        </member>
+        <member name="T:VSEmbed.Roslyn.RoslynSetup">
+            <summary>
+             Import this class from MEF to ensure that all Roslyn hooks have been initialized.  
+             This must be imported before any workspaces from the MEF container are used.  
+             <see cref="T:VSEmbed.Roslyn.EditorWorkspace"/> will import this automatically.
+            </summary>
+        </member>
+        <member name="M:VSEmbed.Roslyn.RoslynSetup.#ctor(Microsoft.VisualStudio.Shell.SVsServiceProvider)">
+            <summary>Sets up all required Roslyn hooks.  This is called by MEF.</summary>
+        </member>
+        <member name="T:VSEmbed.Roslyn.XmlDocumentationProvider">
+            <summary>
+             A <see cref="T:Microsoft.CodeAnalysis.DocumentationProvider"/> that correctly returns XML tags in the content, working around https://roslyn.codeplex.com/workitem/406. 
+            </summary>
+        </member>
+    </members>
+</doc>

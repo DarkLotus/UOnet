@@ -8,6 +8,7 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -16,23 +17,77 @@ namespace UONetFormsGUI
     public partial class Form1 : Form
     {
         Globals globals;
+        Thread t;
         public Form1()
         {
             InitializeComponent();
             globals = new Globals { UO = new uoNet.UO() };
-            globals.UO.Open();
+            globals.UO.Open(2);
+            t = new Thread(new ThreadStart(refresh));
+            t.Start();
+            ToolStripDropDown dropdown = new ToolStripDropDown();
+            for (int i = 1; i <= globals.UO.CliCnt;i++) {
+                var toolstripItem = new ToolStripMenuItem("Client: " + i);
+                toolstripItem.Click += (e, v) => { globals.UO.CliNr = i; };
+                dropdown.Items.Add(toolstripItem);
+            }
+            switchClientToolStripMenuItem.DropDown = dropdown;
+        }
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            base.OnClosing(e);
+            if (t != null && t.IsAlive)
+                t.Abort();
         }
 
         private void btnRefresh_Click(object sender, EventArgs e)
         {
-            List<TreeNode> nodes = new List<TreeNode>();
-            PropertyInfo[] properties = typeof(uoNet.UO).GetProperties();
-            foreach (PropertyInfo property in properties)
+           
+        }
+        private void refresh()
+        {
+            Thread.Sleep(100);
+            if(treeView1.Nodes.Count == 0 )
             {
-                nodes.Add(new TreeNode(property.Name + ": " + property.GetValue(globals.UO)));
+                List<TreeNode> nodes = new List<TreeNode>();
+                PropertyInfo[] properties = typeof(uoNet.UO).GetProperties();
+                foreach (PropertyInfo property in properties)
+                {
+                    var node = new TreeNode(property.Name + ": " + property.GetValue(globals.UO));
+                    node.Tag = property;
+                    nodes.Add(node);
+                }
+                MethodInvoker doit = delegate {
+                   treeView1.Nodes.AddRange(nodes.ToArray());
+                };
+                treeView1.Invoke(doit);
             }
-            treeView1.Nodes.Clear();
-            treeView1.Nodes.AddRange(nodes.ToArray());
+            else
+            {
+
+                MethodInvoker doit = delegate {
+                    treeView1.BeginUpdate();
+                    foreach (var n in treeView1.Nodes)
+                    {
+                        var node = (n as TreeNode);
+                        var index = treeView1.Nodes.IndexOf(node);
+                        treeView1.Nodes.Remove(node);
+                        var prop = (node.Tag as PropertyInfo);
+                        node.Text = prop.Name + ": " + prop.GetValue(globals.UO);
+
+
+                        treeView1.Nodes.Insert(index, node);
+                    }
+                    treeView1.Update();
+                    treeView1.EndUpdate();
+
+                };
+                treeView1.Invoke(doit);
+            }
+            
+            
+
+            refresh();
         }
 
         private async void btnStartStop_Click(object sender, EventArgs e)
@@ -50,7 +105,7 @@ namespace UONetFormsGUI
             }
             catch (CompilationErrorException err)
             {
-                MethodInvoker doit = delegate { txtDebugOutput.Text = DateTime.Now.ToShortTimeString() + " : " + err.Diagnostics + "\r\n" + txtDebugOutput.Text; };
+                MethodInvoker doit = delegate { txtDebugOutput.Text = DateTime.Now.ToShortTimeString() + " : " + err.Message + "\r\n" + txtDebugOutput.Text; };
                 txtDebugOutput.Invoke(doit);
             }
         }
@@ -86,6 +141,7 @@ namespace UONetFormsGUI
                 }
                 fileStream.Close();
             }
+
         }
 
         private void btnSave_Click(object sender, EventArgs e)
