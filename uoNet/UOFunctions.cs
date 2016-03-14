@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace uoNet
 {
     public partial class UO
     {
+
+        public static void SendUpdate(string item,int count, long timeRunning) { }
+
+
         // Handle for UO.dll
         public static IntPtr UOHandle;
         //Get and Set Handlers
@@ -62,7 +67,7 @@ namespace uoNet
             UODLL.PushStrVal(UOHandle, command);
             var result = UODLL.Execute(UOHandle);
             if (result == 0)
-                return UODLL.GetString(UOHandle, 1);
+                return Marshal.PtrToStringAnsi(UODLL.GetString(UOHandle, 1));
             else
                 return null;//Return Blank string instead?
         }

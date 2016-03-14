@@ -19,6 +19,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using Ultima;
@@ -352,6 +353,7 @@ namespace uoNet
         public void Msg(string Message)
         {
             _executeCommand(false, "Msg", new object[] { Message });
+            Thread.Sleep(50);
             Key("enter", false, false, false);
         }
         
@@ -453,7 +455,7 @@ namespace uoNet
                         Results.Add(UODLL.GetInteger(UOHandle, i).ToString());
                         break;
                     case 4:
-                        Results.Add(UODLL.GetString(UOHandle, i));
+                        Results.Add(Marshal.PtrToStringAnsi(UODLL.GetString(UOHandle, i)));
                         break;
                     default:
                         throw new NotImplementedException();

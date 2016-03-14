@@ -61,7 +61,7 @@ namespace uoNet
         public static extern void PushBoolean(IntPtr handle, Boolean value);
 
         [DllImport("uo.dll")]
-        public static extern String GetString(IntPtr handle, int index);
+        public static extern IntPtr GetString(IntPtr handle, int index);
 
         [DllImport("uo.dll")]
         public static extern int GetInteger(IntPtr handle, int index);

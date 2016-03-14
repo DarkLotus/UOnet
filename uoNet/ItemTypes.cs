@@ -15,7 +15,10 @@ namespace uoNet
         public static readonly string Ore_Med = "EWJ";
         public static readonly string[] Ores = { "DWJ", "TVJ", "GWJ", "EWJ" };
         public static readonly string Tinker_Tool = "GTL";
-        public static readonly string IngotA = "RMK";
+        public static readonly string IngotIron = "RMK";
+        public static readonly string IngotCopper = "NMK";
+        public static readonly string IngotSilver = "XMK";
+        public static readonly string IngotGold = "TMK";
         public static readonly string[] Ingots = { "RMK", "TMK", "XMK", "NMK" };
         public static readonly string[] MiningBankables = { "RMK", "TMK", "XMK", "NMK", "DWJ", "TVJ", "GWJ", "EWJ" };
         public static string Hatchet = "FSF";
