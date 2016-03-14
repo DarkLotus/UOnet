@@ -406,6 +406,10 @@ namespace uoNet
             {
                 return GetInt("CliNr");
             }
+            set
+            {
+                SetInt("CliNr", value);
+            }
         }
         public int CliCnt
         {
