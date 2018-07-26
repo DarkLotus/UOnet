@@ -99,17 +99,22 @@ namespace RailLessLJ
                 return false;
             }
             UOD.DragDropC(tinker.ID, 1, UOD.BackpackID);
+            Thread.Sleep(1000);
             var iron = UOD.FindItem(Items.Ingots).Where(i => i.Col == 0 && i.ContID == Tools.EUOToInt(_bankChestID)).FirstOrDefault();
             UOD.DragDropC(iron.ID, 50, UOD.BackpackID);
             for (int i = 0; i < cnt;)
             {
-                if(UOD.FindItem(Items.Ingots).Where(iz => iz.Col == 0 && iz.ContID == UOD.BackpackID).FirstOrDefault() == null || UOD.FindItem(Items.Tinker_Tool).FirstOrDefault() == null)
+                iron = UOD.FindItem(Items.Ingots).Where(iz => iz.Col == 0 && iz.ContID == UOD.BackpackID).FirstOrDefault();
+                if (iron == null || UOD.FindItem(Items.Tinker_Tool).Where(zi => zi.ContID == UOD.BackpackID).FirstOrDefault() == null)
                 {
                     Logger.I("Failed to craft");
                     return false;
                 }
+                if (iron.Stack < 4)
+                    return false;
+
                 UOD.Msg("_waitmenu 'Tinkering' 'Tools' 'Tools' 'hatchet'");
-                UOD.UseObject(tinker);
+                UOD.UseObject(UOD.FindItem(Items.Tinker_Tool).Where(zi => zi.ContID == UOD.BackpackID).FirstOrDefault());
                 Thread.Sleep(6000);
                 i = UOD.FindItem(Items.Hatchet).Where(p => p.ContID == UOD.BackpackID).Count();
                 if (UOD.CharType != 400 && UOD.CharType != 401)
@@ -171,19 +176,24 @@ namespace RailLessLJ
                         _runningTally.Add(ore.Col, ore.Stack);
 
                     UOD.DragDropC(ore.ID, ore.Stack, Tools.EUOToInt(_bankChestID));
+                    Thread.Sleep(1000);
 
                 }
             });
             Logger.I("Banked " + counter + " logs this run");
             Logger.I("Totals for this session: " + _timer.Elapsed.ToString());
-            //var hours = _timer.ElapsedMilliseconds / 1000 / 60/60;
+            var curhours = _timer.ElapsedMilliseconds;
+            if (curhours > 0)
+                curhours = curhours / 1000 / 60 / 60;
             foreach (var kv in _runningTally)
             {
-                var ph = 0L;
-                //if (kv.Value > 0)
-                //ph = (kv.Value / hours);
+                long ph = 0;
+                if (curhours > 0 && kv.Value > 0)
+                    ph = kv.Value / curhours;
                 Logger.I("Color: " + kv.Key + " Amount: " + kv.Value + "P/H: " + ph);
+                UOD.Report(kv.Key + "", kv.Value);
             }
+            _runningTally.Clear();
         }
 
         private void LumberLoop()
@@ -231,7 +241,7 @@ namespace RailLessLJ
                     }
                     if (UOD.InJournal(new string[] { "you hack at", "you put",}) != null)
                         break;
-                    if (UOD.InJournal(new string[] { "nothing here", "far away", "immune", "line of", "reach this" }) != null)
+                    if (UOD.InJournal(new string[] { "nothing here", "far away", "immune", "line of", "reach this", "try chopping" }) != null)
                     {
                         next = true;
                         break;

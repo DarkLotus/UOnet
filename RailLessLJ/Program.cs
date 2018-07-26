@@ -27,9 +27,9 @@ namespace RailLessLJ
             else if (UO.CharName.Equals("Ansem"))
                 script = new Lumber(UO, "HCUSJMD", "OZQFKMD", new Rectangle(493, 975, 225, 225), new Vector3(541, 993), new Vector3(553, 1018), "ELUSJMD");
             else if (UO.CharName.Equals("Maximoose"))
-                script = new Lumber(UO, null, "KTNEKMD", new Rectangle(1760, 1237, 225, 225), new Vector3(1720, 1314), new Vector3(1770, 1329));
+                script = new Lumber(UO, null, "KTNEKMD", new Rectangle(1555, 2337, 225, 225), new Vector3(1609, 2435), new Vector3(1609, 2436));
             else if (UO.CharName.Equals("Scully"))
-                script = new Lumber(UO, null, "KTNEKMD", new Rectangle(1560, 1237, 225, 225), new Vector3(1720, 1314), new Vector3(1711, 1327));
+                script = new Lumber(UO, null, "KTNEKMD", new Rectangle(1555, 2437, 225, 225), new Vector3(1609, 2435), new Vector3(1609, 2436));
             else
                 script = new Lumber(UO, "FCUSJMD", "DCUXJMD", new Rectangle(3322, 2344, 400, 400), new Vector3(3682,2526), new Vector3(3682, 2526));
             //var script = new Lumber(UO);
