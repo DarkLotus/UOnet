@@ -146,7 +146,7 @@ namespace uoNet
                 FoundItem item = GetItem(i);
                 if (item != null)
                 {
-                    if (item.Type == TypeOrID || item.ID == TypeOrID && (containerID == 0 || item.ContID == containerID))
+                    if (TypeOrID == 0 || item.Type == TypeOrID || item.ID == TypeOrID && (containerID == 0 || item.ContID == containerID))
                         items.Add(item);
                 }
 
@@ -210,10 +210,11 @@ namespace uoNet
         }
         public void DragDropC(int Item, int amount, int Target)
         {
+            //Msg("_moveitem " + Item + " " + amount + " " + Target);
             Drag(Item, amount);
-            Thread.Sleep(750);
+            Thread.Sleep(50);
             DropC(Target);
-            Thread.Sleep(1250);
+            Thread.Sleep(1000);
         }
 
         public void DropC(string ContID, int X, int Y)
@@ -352,9 +353,9 @@ namespace uoNet
         }
         public void Msg(string Message)
         {
-            _executeCommand(false, "Msg", new object[] { Message });
+            _executeCommand(false, "Msg", new object[] { Message +"\n" });
             Thread.Sleep(50);
-            Key("enter", false, false, false);
+            //Key("enter", false, false, false);
         }
         
         public int ScanItems(bool VisibleOnly)
@@ -562,6 +563,19 @@ namespace uoNet
         public int ContID;
         public int X, Y, Z;
         public int Stack, Rep, Col;
+
+        public int DistanceFromPlayer()
+        {
+            throw new NotImplementedException();
+        }
+        public override bool Equals(object obj)
+        {
+            return ID == ((FoundItem)obj).ID;
+        }
+        public override int GetHashCode()
+        {
+            return ID.GetHashCode();
+        }
     }
     #endregion
 }

@@ -52,6 +52,12 @@ namespace uoNet
                 return xdif;
             }
         }
+
+        public static int DistFromPlayer(UO uO, FoundItem mob)
+        {
+            return Get2DDistance(uO.CharPosX, uO.CharPosY, mob.X, mob.Y);
+        }
+
         public static int EUOToInt(String val)
         //Code by BtbN
         {

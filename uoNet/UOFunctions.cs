@@ -13,7 +13,7 @@ namespace uoNet
 
 
         // Handle for UO.dll
-        public static IntPtr UOHandle;
+        public IntPtr UOHandle;
         //Get and Set Handlers
         #region GetterSetterHelpers
         private bool GetBoolean(string command)

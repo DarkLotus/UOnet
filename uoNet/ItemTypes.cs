@@ -7,6 +7,7 @@ namespace uoNet
 {
     public static class Items
     {
+        public static readonly string AxeDouble = "NSF";
         public static readonly string PickAxe = "NPF";
         public static readonly string Forge = "JBG";
         public static readonly string Ore_Large = "DWJ";
@@ -26,5 +27,19 @@ namespace uoNet
         public static string BlackPearl = "KUF";
         public static string MandrakeRoot = "MZF";
         public static string BloodMoss = "JUF";
+        public static string Map = "XVH";
+        public static string Saw = "EGG";
+        public static string Bottles = "WUF";
+        public static readonly string NightShade = "WZF";
+        public static readonly string Garlic = "KZF";
+        public static readonly string Ginseng = "JZF";
+        public static readonly string BlankScrolls = "MMF";
+        public static readonly string Raw_Fish_Steak = "IND";
+        public static readonly string Fish_Steak = "HND";
+        public static readonly string SulfAsh = "SZF";
+        public static readonly string ClockParts = "FCG";
+        public static readonly string SpiderSilk = "RZF";
+        public static readonly string Bandages = "ZLF";
+        public static readonly string Dagger = "TSF";
     }
 }

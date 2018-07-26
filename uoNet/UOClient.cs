@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 
@@ -10,7 +11,25 @@ namespace uoNet
 {
     public static class UOHELPERS
     {
-        public static object FindPath(this UO t,Vector3 vector31, Vector3 vector32)
+
+
+        public async static void Report(this UO UO,string valuename, int count)
+        {
+            var data = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("valuename", valuename),
+                new KeyValuePair<string, string>("value", count + ""),
+                 new KeyValuePair<string, string>("charname", UO.CharName),
+
+            };
+            var content = new FormUrlEncodedContent(data);
+            var url = "http://home.jameskidd.net:8001/api/report/" + UO.CharID;
+            var client = new HttpClient();
+            try { var result = client.PostAsync(url, content).Result; } catch { }
+            
+        }
+
+        public static List<Vector3> FindPath(this UO t,Vector3 vector31, Vector3 vector32)
         {
             /* Bitmap bmp = new Bitmap(4096, 4096);
              for (int x = 2300; x < 2700; x++)
@@ -24,7 +43,7 @@ namespace uoNet
              bmp.Save("testsm.png", ImageFormat.Png);
              var vv = new Vector3(2475, 431).IsPassable();*/
             var path = FindPath(t, vector31, vector32,1);
-            return null;
+            return path;
         }
 
         public static bool SmartMove(this UO t, Vector3 v,int accuracy = 0)
@@ -80,7 +99,7 @@ namespace uoNet
         }
 
 
-        private static List<Vector3> FindPath(UO t, Vector3 start, Vector3 dest, int accuracy = 0)
+        public static List<Vector3> FindPath(this UO t, Vector3 start, Vector3 dest, int accuracy = 0)
         {
              /*Bitmap bmp = new Bitmap(6128, 4096);
              for (int x = 1000; x < 1750; x++)
@@ -156,7 +175,7 @@ namespace uoNet
                 //if (OpenSet.Count > 1000)
                 //    OpenSet.RemoveRange(500, 1000);
                 //bmp.Save("test.png", ImageFormat.Png);
-                if (cnt > 15000)
+                if (cnt > 5000)
                 {
                 //    bmp.Save("test.png", ImageFormat.Png);
                     return null;
